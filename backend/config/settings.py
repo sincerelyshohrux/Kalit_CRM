@@ -144,6 +144,7 @@ REST_FRAMEWORK = {
         "anon": "60/min",
         "user": "600/min",
         "login": "10/min",
+        "refresh": "30/min",
         "bulk": "30/min",
     },
     "EXCEPTION_HANDLER": "apps.common.exceptions.exception_handler",

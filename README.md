@@ -15,7 +15,10 @@ backend/            Django + DRF API
   apps/accounts/    foydalanuvchilar, rollar, JWT auth, xodimlar, login xavfsizligi
   apps/realty/      loyihalar, bloklar, xonadonlar, shaxmatka, narxlar
   tests/            pytest testlar
-frontend/           React (3-bosqichda)
+frontend/           React + TypeScript + Vite
+  src/components/   UI, layout, GSAP animatsiyalar (PillNav)
+  src/pages/        kompaniya va platforma sahifalari
+  src/lib/          API klient, formatlash
 ```
 
 ## Backendni ishga tushirish
@@ -42,6 +45,19 @@ cp .env.example .env                 # SECRET_KEY va DATABASE_URL ni to'ldiring
 
 Testlar: `.venv/bin/pytest`
 
+## Frontendni ishga tushirish
+
+Backend `localhost:8000` da ishlab turgan bo'lishi kerak (Vite `/api` ni unga proxy qiladi).
+
+```bash
+cd frontend
+npm install
+npm run dev        # http://localhost:5173
+```
+
+- Kompaniya paneli: direktor/menejer/kassir sifatida kiring → `/app`
+- Platforma admin paneli: superadmin sifatida kiring → `/platform`
+
 ## Rollar
 
 | Rol | Nima qila oladi |
@@ -53,7 +69,7 @@ Testlar: `.venv/bin/pytest`
 
 Har bir kompaniya faqat o'z ma'lumotlarini ko'radi (`CompanyScopedViewSetMixin`).
 Bloklangan yoki obunasi tugagan kompaniya xodimlari tizimga kira olmaydi.
-Xavfsizlik choralari ro'yxati: [ROADMAP.md](ROADMAP.md#xavfsizlik-2-bosqichda-qoshilgan-keyingi-bosqichlarda-ham-amal-qiladi)
+Xavfsizlik choralari ro'yxati: [ROADMAP.md](ROADMAP.md#xavfsizlik-har-bosqichda-qoshib-boriladi)
 
 ## API (v1)
 

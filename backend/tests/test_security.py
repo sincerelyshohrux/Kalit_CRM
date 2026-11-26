@@ -66,3 +66,34 @@ def test_invalid_image_rejected(api, director_a):
     fake = SimpleUploadedFile("logo.png", b"<?php echo 1; ?>", content_type="image/png")
     r = auth(api, director_a).patch("/api/v1/company/", {"logo": fake}, format="multipart")
     assert r.status_code == 400
+
+
+WEB = {"HTTP_X_KALIT_CLIENT": "web"}
+
+
+def test_web_login_sets_httponly_cookie_not_body(api, manager_a):
+    r = api.post("/api/v1/auth/login/", {"phone": manager_a.phone, "password": PASSWORD}, **WEB)
+    assert r.status_code == 200
+    assert "refresh" not in r.data and "access" in r.data
+    c = r.cookies["kalit_refresh"]
+    assert c["httponly"] and c["samesite"] == "Strict" and c["path"] == "/api/v1/auth/"
+
+
+def test_web_refresh_rotates_cookie_and_logout_clears(api, manager_a):
+    api.post("/api/v1/auth/login/", {"phone": manager_a.phone, "password": PASSWORD}, **WEB)
+    old = api.cookies["kalit_refresh"].value
+    r = api.post("/api/v1/auth/refresh/", **WEB)
+    assert r.status_code == 200 and "access" in r.data and "refresh" not in r.data
+    new = api.cookies["kalit_refresh"].value
+    assert new and new != old
+    assert api.post("/api/v1/auth/logout/", **WEB).status_code == 205
+    assert api.cookies["kalit_refresh"].value == ""
+    # chiqib ketgandan keyin refresh ishlamaydi
+    api.cookies["kalit_refresh"] = new
+    assert api.post("/api/v1/auth/refresh/", **WEB).status_code == 401
+
+
+def test_cookie_ignored_without_client_header(api, manager_a):
+    """CSRF himoyasi: maxsus sarlavhasiz so'rov cookie'dan foydalana olmaydi."""
+    api.post("/api/v1/auth/login/", {"phone": manager_a.phone, "password": PASSWORD}, **WEB)
+    assert api.post("/api/v1/auth/refresh/").status_code == 401

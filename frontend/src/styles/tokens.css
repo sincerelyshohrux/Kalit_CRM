@@ -1,0 +1,64 @@
+/* Kalit CRM — dizayn tokenlari (kulrang glassmorphism) */
+:root {
+  /* Fon */
+  --bg: #0a0b0d;
+  --bg-elev: #121417;
+
+  /* Shisha qatlamlar */
+  --glass-1: rgba(255, 255, 255, 0.045);
+  --glass-2: rgba(255, 255, 255, 0.075);
+  --glass-3: rgba(255, 255, 255, 0.11);
+  --glass-hover: rgba(255, 255, 255, 0.07);
+  --stroke: rgba(255, 255, 255, 0.09);
+  --stroke-2: rgba(255, 255, 255, 0.15);
+  --stroke-3: rgba(255, 255, 255, 0.24);
+  --highlight: inset 0 1px 0 rgba(255, 255, 255, 0.07);
+  --blur: blur(28px) saturate(150%);
+
+  /* Matn */
+  --text: #f3f2ee;
+  --text-2: rgba(243, 242, 238, 0.64);
+  --text-3: rgba(243, 242, 238, 0.42);
+  --text-4: rgba(243, 242, 238, 0.26);
+
+  /* Faol "pill" — videodagidek oq kapsula */
+  --pill: #f2f1ec;
+  --pill-text: #111214;
+  --pill-text-2: rgba(17, 18, 20, 0.55);
+
+  /* Holat ranglari (xonadonlar va belgilar uchun) */
+  --ok: #8fd6a8;
+  --ok-bg: rgba(143, 214, 168, 0.12);
+  --warn: #ecc27a;
+  --warn-bg: rgba(236, 194, 122, 0.13);
+  --danger: #f08d86;
+  --danger-bg: rgba(240, 141, 134, 0.12);
+  --info: #9ebcf5;
+  --info-bg: rgba(158, 188, 245, 0.12);
+  --muted: #9aa0a8;
+  --muted-bg: rgba(154, 160, 168, 0.12);
+
+  /* Radiuslar */
+  --r-xs: 8px;
+  --r-sm: 10px;
+  --r-md: 14px;
+  --r-lg: 20px;
+  --r-xl: 26px;
+  --r-full: 999px;
+
+  /* Soyalar */
+  --shadow-panel: 0 30px 80px -30px rgba(0, 0, 0, 0.7), 0 2px 0 rgba(255, 255, 255, 0.02) inset;
+  --shadow-pop: 0 24px 60px -16px rgba(0, 0, 0, 0.75);
+
+  /* Shriftlar */
+  --font-ui: 'Inter Variable', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-display: 'Manrope Variable', 'Inter Variable', sans-serif;
+
+  /* Harakat */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --t-fast: 140ms;
+  --t-med: 240ms;
+
+  --sidebar-w: 248px;
+}

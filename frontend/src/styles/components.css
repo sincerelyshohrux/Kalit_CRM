@@ -1,0 +1,612 @@
+/* ============ Shisha panel ============ */
+.glass {
+  background: var(--glass-1);
+  border: 1px solid var(--stroke);
+  border-radius: var(--r-lg);
+  box-shadow: var(--highlight);
+  backdrop-filter: var(--blur);
+  -webkit-backdrop-filter: var(--blur);
+}
+
+.glass--strong {
+  background: var(--glass-2);
+}
+
+.card {
+  position: relative;
+  padding: 18px;
+  background: var(--glass-1);
+  border: 1px solid var(--stroke);
+  border-radius: var(--r-lg);
+  box-shadow: var(--highlight);
+  transition: border-color var(--t-med) var(--ease-out), background var(--t-med) var(--ease-out);
+}
+
+.card--interactive:hover {
+  border-color: var(--stroke-2);
+  background: var(--glass-hover);
+}
+
+.card__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.card__title {
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.card__sub {
+  color: var(--text-3);
+  font-size: 12.5px;
+  margin-top: 2px;
+}
+
+/* ============ Tugmalar ============ */
+.btn {
+  --h: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: var(--h);
+  padding: 0 16px;
+  border-radius: var(--r-full);
+  border: 1px solid var(--stroke-2);
+  background: var(--glass-2);
+  color: var(--text);
+  font-weight: 500;
+  font-size: 13.5px;
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+  transition:
+    background var(--t-fast) var(--ease-out),
+    border-color var(--t-fast) var(--ease-out),
+    transform var(--t-fast) var(--ease-out),
+    opacity var(--t-fast);
+}
+
+.btn:hover { background: var(--glass-3); border-color: var(--stroke-3); }
+.btn:active { transform: scale(0.97); }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+.btn--primary {
+  background: var(--pill);
+  color: var(--pill-text);
+  border-color: transparent;
+  box-shadow: 0 8px 24px -10px rgba(242, 241, 236, 0.5);
+}
+.btn--primary:hover { background: #ffffff; border-color: transparent; }
+
+.btn--ghost { background: transparent; border-color: transparent; color: var(--text-2); }
+.btn--ghost:hover { background: var(--glass-2); color: var(--text); border-color: transparent; }
+
+.btn--danger { color: var(--danger); border-color: rgba(240, 141, 134, 0.3); background: var(--danger-bg); }
+.btn--danger:hover { background: rgba(240, 141, 134, 0.2); border-color: rgba(240, 141, 134, 0.45); }
+
+.btn--sm { --h: 30px; padding: 0 12px; font-size: 12.5px; }
+.btn--lg { --h: 46px; padding: 0 22px; font-size: 14.5px; }
+.btn--block { width: 100%; }
+
+.icon-btn {
+  display: inline-grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--r-full);
+  border: 1px solid var(--stroke);
+  background: var(--glass-1);
+  color: var(--text-2);
+  cursor: pointer;
+  transition: all var(--t-fast) var(--ease-out);
+  position: relative;
+}
+.icon-btn:hover { color: var(--text); background: var(--glass-3); border-color: var(--stroke-2); }
+.icon-btn__dot {
+  position: absolute;
+  top: 7px;
+  right: 8px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--warn);
+  box-shadow: 0 0 0 2px #1a1b1e;
+}
+
+/* ============ Formalar ============ */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.field__label {
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--text-2);
+}
+
+.field__error {
+  font-size: 12px;
+  color: var(--danger);
+}
+
+.field__hint {
+  font-size: 12px;
+  color: var(--text-3);
+}
+
+.input {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 42px;
+  padding: 0 14px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--stroke);
+  background: rgba(0, 0, 0, 0.18);
+  transition: border-color var(--t-fast), background var(--t-fast), box-shadow var(--t-fast);
+}
+.input:hover { border-color: var(--stroke-2); }
+.input:focus-within {
+  border-color: rgba(242, 241, 236, 0.45);
+  background: rgba(0, 0, 0, 0.26);
+  box-shadow: 0 0 0 4px rgba(242, 241, 236, 0.06);
+}
+.input--invalid { border-color: rgba(240, 141, 134, 0.55); }
+.input__icon { color: var(--text-3); flex: none; display: grid; }
+.input__prefix { color: var(--text-3); font-variant-numeric: tabular-nums; }
+.input input,
+.input select {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  font-size: 14px;
+}
+.input input::placeholder { color: var(--text-4); }
+.input select { appearance: none; cursor: pointer; }
+.input select option { background: #1a1b1e; }
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+.form-grid .span-2 { grid-column: span 2; }
+
+.form-section {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  margin: 6px 0 -4px;
+}
+
+/* ============ Belgilar ============ */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 24px;
+  padding: 0 10px;
+  border-radius: var(--r-full);
+  font-size: 12px;
+  font-weight: 500;
+  background: var(--muted-bg);
+  color: var(--muted);
+  white-space: nowrap;
+}
+.badge::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+.badge--ok { background: var(--ok-bg); color: var(--ok); }
+.badge--warn { background: var(--warn-bg); color: var(--warn); }
+.badge--danger { background: var(--danger-bg); color: var(--danger); }
+.badge--info { background: var(--info-bg); color: var(--info); }
+.badge--plain::before { display: none; }
+
+.count {
+  display: inline-grid;
+  place-items: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: var(--r-full);
+  font-size: 11px;
+  font-weight: 600;
+  background: var(--glass-3);
+  color: var(--text-2);
+}
+
+.kbd {
+  display: inline-grid;
+  place-items: center;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 6px;
+  border: 1px solid var(--stroke-2);
+  font-size: 11px;
+  color: var(--text-3);
+  background: var(--glass-1);
+}
+
+/* ============ Pill navigatsiya (GSAP) ============ */
+.pillnav {
+  position: relative;
+  isolation: isolate;
+}
+
+.pillnav__pill {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: var(--pill);
+  clip-path: inset(0 100% 100% 0 round 12px);
+  will-change: clip-path;
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.6);
+}
+
+/* Pill ichidagi nusxa — matn rangi aynan pill chegarasida almashadi */
+.pillnav__pill .pillnav__item,
+.pillnav__pill .pillnav__section {
+  color: var(--pill-text);
+}
+.pillnav__pill .pillnav__item .count {
+  background: rgba(17, 18, 20, 0.1);
+  color: var(--pill-text);
+}
+.pillnav__pill .pillnav__item svg { color: var(--pill-text); opacity: 1; }
+
+.pillnav__list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.pillnav--horizontal .pillnav__list {
+  flex-direction: row;
+  gap: 4px;
+}
+
+.pillnav__section {
+  padding: 16px 12px 6px;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-4);
+}
+.pillnav__section:first-child { padding-top: 4px; }
+
+.pillnav__item {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  height: 38px;
+  padding: 0 12px;
+  border-radius: 12px;
+  border: 0;
+  background: transparent;
+  color: var(--text-2);
+  font-size: 13.5px;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: left;
+  transition: color var(--t-fast), background var(--t-fast);
+  white-space: nowrap;
+}
+.pillnav__item svg { flex: none; opacity: 0.85; }
+.pillnav__item:hover { color: var(--text); background: rgba(255, 255, 255, 0.04); }
+.pillnav__item .count { margin-left: auto; }
+.pillnav__item--disabled { opacity: 0.55; }
+
+.pillnav--horizontal .pillnav__item {
+  height: 32px;
+  padding: 0 14px;
+  font-size: 13px;
+  border-radius: var(--r-full);
+}
+.pillnav--horizontal .pillnav__pill {
+  clip-path: inset(0 100% 100% 0 round 999px);
+}
+
+.tabs-wrap {
+  display: inline-flex;
+  padding: 4px;
+  border-radius: var(--r-full);
+  border: 1px solid var(--stroke);
+  background: rgba(0, 0, 0, 0.2);
+}
+
+/* ============ Stat kartalar ============ */
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 132px;
+}
+.stat__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--text-3);
+  font-size: 12.5px;
+}
+.stat__icon {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  background: var(--glass-2);
+  color: var(--text-2);
+}
+.stat__value {
+  font-family: var(--font-display);
+  font-size: 32px;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+.stat__foot {
+  margin-top: auto;
+  color: var(--text-3);
+  font-size: 12px;
+}
+
+.progress {
+  height: 6px;
+  border-radius: var(--r-full);
+  background: var(--glass-2);
+  overflow: hidden;
+  display: flex;
+}
+.progress__seg { height: 100%; transition: width 0.8s var(--ease-out); }
+
+/* ============ Jadval ============ */
+.table-wrap {
+  overflow: auto;
+  border-radius: var(--r-lg);
+  border: 1px solid var(--stroke);
+  background: var(--glass-1);
+}
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13.5px;
+}
+.table th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  padding: 12px 16px;
+  text-align: left;
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  background: rgba(20, 21, 24, 0.92);
+  backdrop-filter: var(--blur);
+  border-bottom: 1px solid var(--stroke);
+  white-space: nowrap;
+}
+.table td {
+  padding: 13px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  vertical-align: middle;
+}
+.table tr:last-child td { border-bottom: 0; }
+.table tbody tr { transition: background var(--t-fast); }
+.table tbody tr:hover { background: rgba(255, 255, 255, 0.03); }
+.table .num { text-align: right; font-variant-numeric: tabular-nums; }
+.cell-main { font-weight: 500; }
+.cell-sub { color: var(--text-3); font-size: 12px; margin-top: 2px; }
+
+/* ============ Modal ============ */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(5, 6, 8, 0.55);
+  backdrop-filter: blur(8px);
+}
+.modal {
+  width: min(560px, 100%);
+  max-height: calc(100vh - 48px);
+  overflow: auto;
+  padding: 24px;
+  border-radius: var(--r-xl);
+  border: 1px solid var(--stroke-2);
+  background: rgba(28, 29, 33, 0.82);
+  backdrop-filter: var(--blur);
+  box-shadow: var(--shadow-pop), var(--highlight);
+}
+.modal__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+.modal__title { font-size: 19px; }
+.modal__desc { color: var(--text-3); margin-top: 4px; font-size: 13px; }
+.modal__foot {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+/* ============ Toast ============ */
+.toasts {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  pointer-events: none;
+}
+.toast {
+  pointer-events: auto;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  min-width: 280px;
+  max-width: 380px;
+  padding: 12px 14px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--stroke-2);
+  background: rgba(30, 31, 35, 0.9);
+  backdrop-filter: var(--blur);
+  box-shadow: var(--shadow-pop);
+  font-size: 13px;
+  animation: toast-in 0.35s var(--ease-out);
+}
+.toast--success svg { color: var(--ok); }
+.toast--error svg { color: var(--danger); }
+@keyframes toast-in {
+  from { opacity: 0; transform: translateY(10px) scale(0.98); }
+}
+
+/* ============ Dropdown ============ */
+.dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 50;
+  min-width: 220px;
+  padding: 6px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--stroke-2);
+  background: rgba(28, 29, 33, 0.92);
+  backdrop-filter: var(--blur);
+  box-shadow: var(--shadow-pop);
+  transform-origin: top right;
+}
+.dropdown__item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  height: 36px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--text-2);
+  font-size: 13px;
+  cursor: pointer;
+  text-align: left;
+}
+.dropdown__item:hover { background: var(--glass-2); color: var(--text); }
+.dropdown__item--danger:hover { color: var(--danger); }
+.dropdown__sep { height: 1px; margin: 6px 4px; background: var(--stroke); }
+.dropdown__head { padding: 8px 10px 10px; }
+
+/* ============ Avatar ============ */
+.avatar {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #e9e6de, #b9b5ab);
+  color: #1b1b1b;
+  font-weight: 600;
+  font-size: 12.5px;
+  letter-spacing: 0.02em;
+  overflow: hidden;
+}
+.avatar img { width: 100%; height: 100%; object-fit: cover; }
+.avatar--sm { width: 28px; height: 28px; font-size: 11px; }
+.avatar--lg { width: 48px; height: 48px; font-size: 15px; }
+.avatar--square { border-radius: 12px; }
+
+/* ============ Holatlar ============ */
+.spinner {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  animation: spin 0.7s linear infinite;
+  opacity: 0.8;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.skeleton {
+  border-radius: var(--r-sm);
+  background: linear-gradient(90deg, var(--glass-1) 0%, var(--glass-3) 50%, var(--glass-1) 100%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+@keyframes shimmer { to { background-position: -200% 0; } }
+
+.empty {
+  display: grid;
+  place-items: center;
+  gap: 10px;
+  padding: 56px 24px;
+  text-align: center;
+  color: var(--text-3);
+}
+.empty__icon {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 18px;
+  background: var(--glass-2);
+  color: var(--text-2);
+  margin-bottom: 4px;
+}
+.empty__title { color: var(--text); font-family: var(--font-display); font-weight: 600; font-size: 16px; }
+
+/* ============ Chip (scene pills kabi) ============ */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px 8px 8px;
+  border-radius: var(--r-full);
+  border: 1px solid var(--stroke);
+  background: var(--glass-1);
+  cursor: pointer;
+  transition: all var(--t-med) var(--ease-out);
+  text-align: left;
+}
+.chip:hover { background: var(--glass-3); border-color: var(--stroke-2); transform: translateY(-1px); }
+.chip__icon {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--glass-3);
+  color: var(--text);
+}
+.chip__title { font-size: 13px; font-weight: 500; }
+.chip__sub { font-size: 11.5px; color: var(--text-3); }

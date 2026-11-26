@@ -4,9 +4,8 @@ from django.contrib import admin
 from django.urls import include, path
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 from rest_framework.routers import DefaultRouter
-from rest_framework_simplejwt.views import TokenRefreshView
 
-from apps.accounts.views import ChangePasswordView, EmployeeViewSet, LoginView, LogoutView, MeView
+from apps.accounts.views import ChangePasswordView, EmployeeViewSet, LoginView, LogoutView, MeView, RefreshView
 from apps.companies.views import MyCompanyView, PlatformCompanyViewSet, PlatformStatsView
 from apps.realty.views import BlockViewSet, ProjectViewSet, UnitViewSet
 
@@ -24,7 +23,7 @@ router.register("platform/companies", PlatformCompanyViewSet, basename="platform
 api_v1 = [
     # Auth
     path("auth/login/", LoginView.as_view(), name="login"),
-    path("auth/refresh/", TokenRefreshView.as_view(), name="token-refresh"),
+    path("auth/refresh/", RefreshView.as_view(), name="token-refresh"),
     path("auth/logout/", LogoutView.as_view(), name="logout"),
     path("auth/me/", MeView.as_view(), name="me"),
     path("auth/change-password/", ChangePasswordView.as_view(), name="change-password"),

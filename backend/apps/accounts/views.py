@@ -1,15 +1,17 @@
 from drf_spectacular.utils import extend_schema
 from rest_framework import generics, mixins, status, viewsets
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.exceptions import AuthenticationFailed
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.throttling import ScopedRateThrottle
 from rest_framework.views import APIView
-from rest_framework_simplejwt.exceptions import TokenError
+from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 from apps.common.mixins import CompanyScopedViewSetMixin
 
+from .cookies import clear_refresh_cookie, get_refresh, is_web_client, set_refresh_cookie
 from .models import Role, User
 from .security import revoke_all_tokens
 from .serializers import (
@@ -26,20 +28,61 @@ class LoginView(TokenObtainPairView):
     throttle_classes = [ScopedRateThrottle]
     throttle_scope = "login"
 
+    def post(self, request, *args, **kwargs):
+        response = super().post(request, *args, **kwargs)
+        if response.status_code == 200 and is_web_client(request):
+            set_refresh_cookie(response, response.data.pop("refresh"))
+        return response
+
+
+class RefreshView(TokenRefreshView):
+    """Access tokenni yangilaydi. Web-klient uchun refresh cookie'dan olinadi va rotatsiya qilinadi."""
+
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = "refresh"
+
+    def post(self, request, *args, **kwargs):
+        web = is_web_client(request)
+        refresh = get_refresh(request)
+        if not refresh:
+            return Response({"detail": "Sessiya topilmadi."}, status=status.HTTP_401_UNAUTHORIZED)
+        serializer = self.get_serializer(data={"refresh": refresh})
+        try:
+            serializer.is_valid(raise_exception=True)
+        except (TokenError, InvalidToken, AuthenticationFailed):
+            response = Response({"detail": "Sessiya muddati tugagan. Qayta kiring."}, status=status.HTTP_401_UNAUTHORIZED)
+            if web:
+                clear_refresh_cookie(response)
+            return response
+        data = dict(serializer.validated_data)
+        response = Response(data, status=status.HTTP_200_OK)
+        if web and "refresh" in data:
+            set_refresh_cookie(response, response.data.pop("refresh"))
+        return response
+
 
 class LogoutView(APIView):
-    """Refresh tokenni qora ro'yxatga qo'shadi."""
+    """Refresh tokenni qora ro'yxatga qo'shadi (web-klient uchun cookie ham o'chiriladi)."""
+
+    permission_classes = [AllowAny]
 
     @extend_schema(request={"application/json": {"type": "object", "properties": {"refresh": {"type": "string"}}}}, responses={205: None})
     def post(self, request):
+        web = is_web_client(request)
         try:
-            token = RefreshToken(request.data.get("refresh"))
-            if str(token.get("user_id")) != str(request.user.pk):
+            token = RefreshToken(get_refresh(request))
+            if request.user.is_authenticated and str(token.get("user_id")) != str(request.user.pk):
                 raise TokenError("boshqa foydalanuvchi tokeni")
             token.blacklist()
         except (TokenError, TypeError):
-            return Response({"detail": "Token noto'g'ri yoki muddati o'tgan."}, status=status.HTTP_400_BAD_REQUEST)
-        return Response(status=status.HTTP_205_RESET_CONTENT)
+            response = Response({"detail": "Token noto'g'ri yoki muddati o'tgan."}, status=status.HTTP_400_BAD_REQUEST)
+            if web:
+                clear_refresh_cookie(response)
+            return response
+        response = Response(status=status.HTTP_205_RESET_CONTENT)
+        if web:
+            clear_refresh_cookie(response)
+        return response
 
 
 class MeView(generics.RetrieveUpdateAPIView):
