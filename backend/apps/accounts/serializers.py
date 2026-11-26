@@ -1,11 +1,19 @@
+import logging
+
+from django.conf import settings
+from django.contrib.auth.models import update_last_login
 from django.contrib.auth.password_validation import validate_password
-from rest_framework import serializers
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework import exceptions, serializers
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer, TokenObtainSerializer
+from rest_framework_simplejwt.settings import api_settings
 
 from apps.common.validators import normalize_phone, validate_uz_phone
 from apps.companies.serializers import CompanyShortSerializer
 
 from .models import COMPANY_ROLES, Role, User
+from .security import LoginGuard, client_ip, revoke_all_tokens
+
+security_logger = logging.getLogger("kalit.security")
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -43,15 +51,34 @@ class ChangePasswordSerializer(serializers.Serializer):
 
 
 class LoginSerializer(TokenObtainPairSerializer):
-    """Telefon + parol -> access/refresh token va foydalanuvchi ma'lumotlari."""
+    """Telefon + parol -> access/refresh token va foydalanuvchi ma'lumotlari.
+
+    Xavfsizlik:
+    - ketma-ket xato urinishlardan keyin telefon/IP vaqtincha bloklanadi;
+    - kompaniya tekshiruvi token yaratilishidan OLDIN bajariladi;
+    - xato xabari telefon mavjudligini oshkor qilmaydi.
+    """
 
     default_error_messages = {
         "no_active_account": "Telefon raqam yoki parol noto'g'ri.",
     }
 
     def validate(self, attrs):
-        attrs[self.username_field] = normalize_phone(attrs.get(self.username_field, ""))
-        data = super().validate(attrs)
+        phone = normalize_phone(attrs.get(self.username_field, ""))
+        attrs[self.username_field] = phone
+        request = self.context.get("request")
+        guard = LoginGuard(phone, client_ip(request) if request else "")
+
+        if guard.is_locked():
+            raise exceptions.Throttled(
+                detail=f"Juda ko'p noto'g'ri urinish. {settings.LOGIN_LOCKOUT_MINUTES} daqiqadan keyin qayta urinib ko'ring."
+            )
+        try:
+            TokenObtainSerializer.validate(self, attrs)  # faqat autentifikatsiya, token yaratmaydi
+        except exceptions.AuthenticationFailed:
+            guard.register_failure()
+            raise
+
         user = self.user
         if user.role != Role.SUPERADMIN:
             company = user.company
@@ -59,8 +86,17 @@ class LoginSerializer(TokenObtainPairSerializer):
                 raise serializers.ValidationError(
                     {"detail": "Kompaniyangiz bloklangan yoki obuna muddati tugagan. Administrator bilan bog'laning."}
                 )
-        data["user"] = UserSerializer(user, context=self.context).data
-        return data
+        guard.reset()
+
+        refresh = self.get_token(user)
+        if api_settings.UPDATE_LAST_LOGIN:
+            update_last_login(None, user)
+        security_logger.info("Login: user=%s ip=%s", user.pk, guard.ip)
+        return {
+            "refresh": str(refresh),
+            "access": str(refresh.access_token),
+            "user": UserSerializer(user, context=self.context).data,
+        }
 
     @classmethod
     def get_token(cls, user):
@@ -131,8 +167,12 @@ class EmployeeSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         password = validated_data.pop("password", None)
+        old_role, was_active = instance.role, instance.is_active
         user = super().update(instance, validated_data)
         if password:
             user.set_password(password)
             user.save(update_fields=["password"])
+        # Bloklangan, paroli yoki roli o'zgargan xodim sessiyalari darhol tugatiladi
+        if password or (was_active and not user.is_active) or old_role != user.role:
+            revoke_all_tokens(user)
         return user

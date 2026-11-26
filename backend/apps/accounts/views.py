@@ -11,6 +11,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from apps.common.mixins import CompanyScopedViewSetMixin
 
 from .models import Role, User
+from .security import revoke_all_tokens
 from .serializers import (
     ChangePasswordSerializer,
     EmployeeSerializer,
@@ -32,7 +33,10 @@ class LogoutView(APIView):
     @extend_schema(request={"application/json": {"type": "object", "properties": {"refresh": {"type": "string"}}}}, responses={205: None})
     def post(self, request):
         try:
-            RefreshToken(request.data.get("refresh")).blacklist()
+            token = RefreshToken(request.data.get("refresh"))
+            if str(token.get("user_id")) != str(request.user.pk):
+                raise TokenError("boshqa foydalanuvchi tokeni")
+            token.blacklist()
         except (TokenError, TypeError):
             return Response({"detail": "Token noto'g'ri yoki muddati o'tgan."}, status=status.HTTP_400_BAD_REQUEST)
         return Response(status=status.HTTP_205_RESET_CONTENT)
@@ -60,6 +64,8 @@ class ChangePasswordView(APIView):
         serializer.is_valid(raise_exception=True)
         request.user.set_password(serializer.validated_data["new_password"])
         request.user.save(update_fields=["password"])
+        # Boshqa qurilmalardagi barcha sessiyalar tugatiladi (access tokenlar CHECK_REVOKE_TOKEN orqali)
+        revoke_all_tokens(request.user)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
@@ -91,3 +97,4 @@ class EmployeeViewSet(
             raise ValidationError({"detail": "O'zingizni bloklay olmaysiz."})
         instance.is_active = False
         instance.save(update_fields=["is_active"])
+        revoke_all_tokens(instance)

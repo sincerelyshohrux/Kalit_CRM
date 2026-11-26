@@ -8,6 +8,7 @@ from rest_framework_simplejwt.views import TokenRefreshView
 
 from apps.accounts.views import ChangePasswordView, EmployeeViewSet, LoginView, LogoutView, MeView
 from apps.companies.views import MyCompanyView, PlatformCompanyViewSet, PlatformStatsView
+from apps.realty.views import BlockViewSet, ProjectViewSet, UnitViewSet
 
 admin.site.site_header = "Kalit CRM — boshqaruv"
 admin.site.site_title = "Kalit CRM"
@@ -15,6 +16,9 @@ admin.site.index_title = "Platforma ma'lumotlari"
 
 router = DefaultRouter()
 router.register("employees", EmployeeViewSet, basename="employee")
+router.register("projects", ProjectViewSet, basename="project")
+router.register("blocks", BlockViewSet, basename="block")
+router.register("units", UnitViewSet, basename="unit")
 router.register("platform/companies", PlatformCompanyViewSet, basename="platform-company")
 
 api_v1 = [
@@ -32,7 +36,7 @@ api_v1 = [
 ]
 
 urlpatterns = [
-    path("admin/", admin.site.urls),
+    path(settings.ADMIN_URL, admin.site.urls),
     path("api/v1/", include(api_v1)),
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
     path("api/docs/", SpectacularSwaggerView.as_view(url_name="schema"), name="swagger"),

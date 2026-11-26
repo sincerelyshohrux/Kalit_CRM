@@ -22,13 +22,16 @@
 
 **Natija:** login qilib, token olish mumkin; Swagger ishlaydi; kompaniyalar bir-birining ma'lumotini ko'rmaydi.
 
-## 2-bosqich — Obyektlar va shaxmatka (backend)
-- [ ] Modellar: Loyiha (ЖК) → Blok (bino) → Qavat → Kvartira
-- [ ] Blok yaratganda kvartiralarni avtomatik generatsiya qilish (qavatlar × har qavatdagi xonadonlar)
-- [ ] Kvartira: xonalar soni, maydon (m²), 1 m² narxi, umumiy narx, holat
-- [ ] Holatlar: `bo'sh` · `bron` · `sotilgan` · `sotuvda emas`
-- [ ] `GET /projects/{id}/chessboard` — shaxmatka uchun to'liq ma'lumot
-- [ ] Narxlarni ommaviy o'zgartirish (qavat yoki blok bo'yicha)
+## 2-bosqich — Obyektlar va shaxmatka (backend) ✅
+- [x] Modellar: Loyiha (ЖК) → Blok (bino) → Qavat → Kvartira
+- [x] Blok yaratganda kvartiralarni avtomatik generatsiya qilish (qavatlar × har qavatdagi xonadonlar)
+- [x] Kvartira: xonalar soni, maydon (m²), 1 m² narxi, umumiy narx, holat
+- [x] Holatlar: `bo'sh` · `bron` · `sotilgan` · `sotuvda emas`
+- [x] Narx o'zgarishlari tarixi (kim, qachon, nega)
+- [x] `GET /projects/{id}/chessboard` — shaxmatka uchun to'liq ma'lumot
+- [x] Narxlarni ommaviy o'zgartirish (qavat yoki blok bo'yicha)
+
+- [x] Xavfsizlik kuchaytirildi (pastdagi "Xavfsizlik" bo'limiga qarang)
 
 **Natija:** API orqali loyiha, blok va kvartiralarni yaratib, shaxmatkani olish mumkin.
 
@@ -90,6 +93,17 @@
 - [ ] Demo kompaniya va demo ma'lumotlar (taqdimot uchun)
 
 ---
+
+### Xavfsizlik (2-bosqichda qo'shilgan, keyingi bosqichlarda ham amal qiladi)
+- Parollar Argon2 bilan saqlanadi; kuchli parol talablari
+- Brute-force himoyasi: telefon/IP bo'yicha 5 xato urinishdan keyin 15 daqiqa blok
+- JWT: access 15 daqiqa, refresh 7 kun + rotatsiya; parol o'zgarsa yoki xodim bloklansa barcha tokenlar bekor
+- Rate limit: anonim 60/daq, foydalanuvchi 600/daq, ommaviy amallar 30/daq
+- Tenant izolyatsiyasi: queryset + FK maydonlar faqat o'z kompaniyasini ko'radi (IDOR himoyasi)
+- Rollar bo'yicha ruxsat (direktor / menejer / kassir)
+- Fayl yuklash: haqiqiy format tekshiruvi, 5 MB limit, tasodifiy fayl nomlari
+- Xavfsizlik sarlavhalari, productionda HTTPS/HSTS, admin manzili sozlanadi, Swagger faqat DEBUGda ochiq
+- Xatolar productionda ichki tafsilotni oshkor qilmaydi; login hodisalari logga yoziladi
 
 ### Reliz
 To'liq mahsulot chiqariladi: 1–9-bosqichlarning hammasi tayyor bo'lgach ishga tushiriladi.

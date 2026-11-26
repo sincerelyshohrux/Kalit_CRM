@@ -64,7 +64,50 @@ class Command(BaseCommand):
                     phone, DEMO_PASSWORD, first_name=first, last_name=last, role=role, company=company
                 )
 
+        self._seed_realty(company)
         self.stdout.write(self.style.SUCCESS("Demo ma'lumotlar tayyor."))
         self.stdout.write("Barcha demo foydalanuvchilar paroli: DEMO_PASSWORD (seed_demo.py ichida).")
         for phone, first, last, role in DEMO_USERS:
             self.stdout.write(f"  {phone}  {role:<10}  {first} {last}")
+
+    def _seed_realty(self, company):
+        import random
+        from decimal import Decimal
+
+        from apps.realty import services
+        from apps.realty.models import Block, Project, Unit
+
+        if Project.objects.filter(company=company).exists():
+            return
+        rnd = random.Random(42)
+        projects = [
+            ("Yangi Hayot Residence", "Yunusobod", Project.HousingClass.COMFORT, 9_500_000,
+             [("A blok", 12, 2, 4), ("B blok", 12, 2, 4), ("C blok", 9, 1, 6)]),
+            ("Mirobod Gardens", "Mirobod", Project.HousingClass.BUSINESS, 14_000_000,
+             [("1-korpus", 16, 3, 4), ("2-korpus", 16, 2, 4)]),
+        ]
+        layouts = {
+            4: [(1, "42.50"), (2, "64.00"), (3, "86.30"), (2, "58.70")],
+            6: [(1, "38.00"), (2, "55.40"), (3, "78.90"), (1, "40.20"), (2, "61.00"), (4, "112.00")],
+        }
+        for name, district, cls, price, blocks in projects:
+            project = Project.objects.create(
+                company=company, name=name, city="Toshkent", district=district, housing_class=cls,
+                address=f"{district} tumani", completion_date=timezone.localdate() + timedelta(days=540),
+            )
+            for i, (bname, floors, entrances, per_floor) in enumerate(blocks):
+                block = Block.objects.create(
+                    project=project, name=bname, floors_count=floors, entrances_count=entrances,
+                    units_per_floor=per_floor, start_floor=2 if floors > 10 else 1, sort_order=i,
+                )
+                services.generate_units(
+                    block, [services.LayoutItem(rooms=r, area=Decimal(a)) for r, a in layouts[per_floor]],
+                    price, Decimal("0.8"),
+                )
+            # demo uchun: bir qismi sotilgan / bron / sotuvda emas
+            units = list(Unit.objects.filter(block__project=project).values_list("id", flat=True))
+            rnd.shuffle(units)
+            n = len(units)
+            Unit.objects.filter(id__in=units[: int(n * 0.35)]).update(status=Unit.Status.SOLD)
+            Unit.objects.filter(id__in=units[int(n * 0.35): int(n * 0.45)]).update(status=Unit.Status.BOOKED)
+            Unit.objects.filter(id__in=units[int(n * 0.45): int(n * 0.48)]).update(status=Unit.Status.NOT_FOR_SALE)

@@ -12,7 +12,8 @@ backend/            Django + DRF API
   config/           sozlamalar, URL'lar
   apps/common/      asosiy modellar, ruxsatlar, tenant mixin
   apps/companies/   kompaniyalar (tenantlar), platforma admin API
-  apps/accounts/    foydalanuvchilar, rollar, JWT auth, xodimlar
+  apps/accounts/    foydalanuvchilar, rollar, JWT auth, xodimlar, login xavfsizligi
+  apps/realty/      loyihalar, bloklar, xonadonlar, shaxmatka, narxlar
   tests/            pytest testlar
 frontend/           React (3-bosqichda)
 ```
@@ -52,6 +53,7 @@ Testlar: `.venv/bin/pytest`
 
 Har bir kompaniya faqat o'z ma'lumotlarini ko'radi (`CompanyScopedViewSetMixin`).
 Bloklangan yoki obunasi tugagan kompaniya xodimlari tizimga kira olmaydi.
+Xavfsizlik choralari ro'yxati: [ROADMAP.md](ROADMAP.md#xavfsizlik-2-bosqichda-qoshilgan-keyingi-bosqichlarda-ham-amal-qiladi)
 
 ## API (v1)
 
@@ -66,3 +68,24 @@ Bloklangan yoki obunasi tugagan kompaniya xodimlari tizimga kira olmaydi.
 | CRUD | `/api/v1/employees/` | xodimlar (yozish — direktor, DELETE = bloklash) |
 | CRUD | `/api/v1/platform/companies/` | superadmin: kompaniyalar (+ `suspend/`, `activate/`) |
 | GET | `/api/v1/platform/stats/` | superadmin: platforma statistikasi |
+| CRUD | `/api/v1/projects/` | loyihalar (ЖК) + statistika (yozish — direktor) |
+| GET | `/api/v1/projects/{id}/chessboard/` | shaxmatka; filtr: `rooms`, `status`, `price_min/max`, `area_min/max`, `block` |
+| CRUD | `/api/v1/blocks/` | bloklar; POST'da `generate` bilan xonadonlar avtomatik yaratiladi |
+| GET/PATCH | `/api/v1/units/` | xonadonlar; filtrlar: loyiha, blok, xona, qavat, narx, maydon |
+| POST | `/api/v1/units/bulk-price/` | ommaviy narx: `set` / `percent` / `amount` (bron/sotilganlar o'zgarmaydi) |
+| GET | `/api/v1/units/{id}/price-history/` | narx o'zgarishlari tarixi |
+
+### Blok yaratish namunasi
+
+```json
+POST /api/v1/blocks/
+{
+  "project": 1, "name": "A blok",
+  "floors_count": 12, "entrances_count": 2, "units_per_floor": 4, "start_floor": 2,
+  "generate": {
+    "layout": [{"rooms": 1, "area": "42.5"}, {"rooms": 2, "area": "64"}, {"rooms": 3, "area": "86.3"}, {"rooms": 2, "area": "58.7"}],
+    "base_price_per_m2": 9500000,
+    "floor_step_percent": "0.8"
+  }
+}
+```

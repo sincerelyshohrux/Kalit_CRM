@@ -23,3 +23,23 @@ def validate_uz_phone(value: str) -> None:
 def validate_inn(value: str) -> None:
     if value and not re.fullmatch(r"\d{9}", value):
         raise ValidationError("STIR 9 ta raqamdan iborat bo'lishi kerak.")
+
+
+def validate_image_file(file) -> None:
+    """Rasm hajmi va haqiqiy formatini tekshiradi (kengaytmaga ishonmaydi)."""
+    from django.conf import settings
+    from PIL import Image
+
+    max_mb = getattr(settings, "MAX_IMAGE_SIZE_MB", 5)
+    if file.size > max_mb * 1024 * 1024:
+        raise ValidationError(f"Rasm hajmi {max_mb} MB dan oshmasligi kerak.")
+    try:
+        pos = file.tell()
+        img = Image.open(file)
+        img.verify()
+        fmt = (img.format or "").upper()
+        file.seek(pos)
+    except Exception:
+        raise ValidationError("Fayl yaroqli rasm emas.")
+    if fmt not in {"JPEG", "PNG", "WEBP"}:
+        raise ValidationError("Faqat JPG, PNG yoki WEBP rasmlar qabul qilinadi.")

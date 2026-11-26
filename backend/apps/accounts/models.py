@@ -2,7 +2,8 @@ from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.core.exceptions import ValidationError
 from django.db import models
 
-from apps.common.validators import normalize_phone, validate_uz_phone
+from apps.common.uploads import upload_path
+from apps.common.validators import normalize_phone, validate_image_file, validate_uz_phone
 
 
 class Role(models.TextChoices):
@@ -60,7 +61,7 @@ class User(AbstractUser):
         null=True,
         blank=True,
     )
-    avatar = models.ImageField("rasm", upload_to="users/avatars/", blank=True)
+    avatar = models.ImageField("rasm", upload_to=upload_path("users/avatars"), blank=True, validators=[validate_image_file])
 
     USERNAME_FIELD = "phone"
     REQUIRED_FIELDS = ["first_name"]

@@ -2,7 +2,8 @@ from django.db import models
 from django.utils import timezone
 
 from apps.common.models import TimeStampedModel
-from apps.common.validators import validate_inn
+from apps.common.uploads import upload_path
+from apps.common.validators import validate_image_file, validate_inn
 
 
 class Company(TimeStampedModel):
@@ -25,7 +26,7 @@ class Company(TimeStampedModel):
     email = models.EmailField("email", blank=True)
     city = models.CharField("shahar", max_length=100, blank=True)
     address = models.CharField("manzil", max_length=255, blank=True)
-    logo = models.ImageField("logotip", upload_to="companies/logos/", blank=True)
+    logo = models.ImageField("logotip", upload_to=upload_path("companies/logos"), blank=True, validators=[validate_image_file])
 
     status = models.CharField("holat", max_length=20, choices=Status.choices, default=Status.ACTIVE)
     plan = models.CharField("tarif", max_length=20, choices=Plan.choices, default=Plan.TRIAL)
