@@ -2,20 +2,25 @@
 
 > "Bron'dan kalitgacha" — qurilish kompaniyalari (zastroyshiklar) uchun sotuv CRM.
 
-**Stack:** FastAPI + SQLAlchemy 2 + PostgreSQL (devda SQLite) · React + TypeScript + Vite + GSAP
+**Stack:** Django + Django REST Framework + PostgreSQL + Celery/Redis · React + TypeScript + Vite + GSAP
+**Panellar:** 1) Kompaniya paneli (direktor, menejer, kassir) · 2) Platforma admin paneli (Kalit jamoasi: kompaniyalar, obunalar) — ikkalasi ham bir xil glass dizaynda
 **Dizayn:** kulrang glassmorphism, animatsiyali "pill" menyu (reference video uslubida)
 **Til:** interfeys o'zbekcha (keyin ruscha qo'shiladi)
 
 ---
 
-## 1-bosqich — Poydevor (backend asosi)
-- [ ] Loyiha strukturasi: `backend/` (FastAPI), `frontend/` (React)
-- [ ] Konfiguratsiya (`.env`), ma'lumotlar bazasiga ulanish, Alembic migratsiyalar
-- [ ] Foydalanuvchilar va rollar: `admin`, `manager`
-- [ ] JWT bilan login, `GET /auth/me`
-- [ ] Multi-tenant: har bir qurilish kompaniyasi faqat o'z ma'lumotini ko'radi (`company_id`)
+## 1-bosqich — Poydevor (backend asosi) ✅
+- [x] Loyiha strukturasi: `backend/` (Django + DRF); `frontend/` 3-bosqichda
+- [x] Konfiguratsiya (`.env`), PostgreSQL, migratsiyalar
+- [x] Kompaniya modeli (STIR, obuna muddati, faol/bloklangan)
+- [x] Foydalanuvchilar (telefon raqam bilan login) va rollar: `superadmin`, `direktor`, `menejer`, `kassir`
+- [x] JWT bilan login, `GET /auth/me`
+- [x] Multi-tenant: har bir qurilish kompaniyasi faqat o'z ma'lumotini ko'radi (`company_id`)
+- [x] Xodimlar API (direktor menejer qo'shadi), kompaniya profili API
+- [x] Platforma admin API: kompaniya + direktor yaratish, bloklash, obuna
+- [x] Django Admin, Swagger (`/api/docs/`), demo seed, testlar
 
-**Natija:** login qilib, token olish mumkin; Swagger (`/docs`) ishlaydi.
+**Natija:** login qilib, token olish mumkin; Swagger ishlaydi; kompaniyalar bir-birining ma'lumotini ko'rmaydi.
 
 ## 2-bosqich — Obyektlar va shaxmatka (backend)
 - [ ] Modellar: Loyiha (ЖК) → Blok (bino) → Qavat → Kvartira
@@ -33,8 +38,9 @@
 - [ ] Layout: chap menyu + yuqori panel (qidiruv, bildirishnomalar, profil)
 - [ ] GSAP "pill" animatsiyasi: menyu va tablar uchun (oldingi cheti tez, orqa cheti kechroq yetib keladi)
 - [ ] Login sahifasi
+- [ ] Platforma admin paneli qobig'i: kompaniyalar ro'yxati, qo'shish, bloklash
 
-**Natija:** login qilib, videodagidek animatsiyali bo'sh dashboardga kirish mumkin.
+**Natija:** login qilib, videodagidek animatsiyali dashboardga kirish mumkin (rolga qarab kompaniya yoki admin paneli).
 
 ## 4-bosqich — Shaxmatka sahifasi (asosiy funksiya)
 - [ ] Loyiha va blok tanlash (animatsiyali tablar)
