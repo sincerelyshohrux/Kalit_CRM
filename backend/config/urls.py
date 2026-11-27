@@ -6,8 +6,9 @@ from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 from rest_framework.routers import DefaultRouter
 
 from apps.accounts.views import ChangePasswordView, EmployeeViewSet, LoginView, LogoutView, MeView, RefreshView
+from apps.crm.views import BookingViewSet, ClientViewSet
 from apps.companies.views import MyCompanyView, PlatformCompanyViewSet, PlatformStatsView
-from apps.realty.views import BlockViewSet, ProjectViewSet, UnitViewSet
+from apps.realty.views import BlockViewSet, LayoutViewSet, ProjectPhotoViewSet, ProjectViewSet, UnitViewSet
 
 admin.site.site_header = "Kalit CRM — boshqaruv"
 admin.site.site_title = "Kalit CRM"
@@ -18,6 +19,10 @@ router.register("employees", EmployeeViewSet, basename="employee")
 router.register("projects", ProjectViewSet, basename="project")
 router.register("blocks", BlockViewSet, basename="block")
 router.register("units", UnitViewSet, basename="unit")
+router.register("photos", ProjectPhotoViewSet, basename="photo")
+router.register("layouts", LayoutViewSet, basename="layout")
+router.register("clients", ClientViewSet, basename="client")
+router.register("bookings", BookingViewSet, basename="booking")
 router.register("platform/companies", PlatformCompanyViewSet, basename="platform-company")
 
 api_v1 = [

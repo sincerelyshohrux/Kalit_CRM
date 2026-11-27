@@ -59,3 +59,16 @@ def test_manager_cannot_edit_company(api, manager_a, director_a):
     r = auth(api, director_a).patch("/api/v1/company/", {"name": "Yangi nom", "plan": "enterprise"})
     assert r.status_code == 200
     assert r.data["name"] == "Yangi nom" and r.data["plan"] == "trial"  # tarifni direktor o'zgartira olmaydi
+
+
+def test_reactivation_respects_user_limit(api, director_a, manager_a, cashier_a, company_a):
+    """Bloklangan xodimni qayta yoqish orqali tarif limitini aylanib o'tib bo'lmaydi."""
+    from .conftest import auth, make_user
+    from apps.accounts.models import Role
+
+    auth(api, director_a)
+    assert api.delete(f"/api/v1/employees/{cashier_a.id}/").status_code == 204
+    make_user("+998901000008", Role.MANAGER, company_a)
+    make_user("+998901000009", Role.MANAGER, company_a)  # limit (4) to'ldi
+    res = api.patch(f"/api/v1/employees/{cashier_a.id}/", {"is_active": True}, format="json")
+    assert res.status_code == 400

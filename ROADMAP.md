@@ -49,22 +49,32 @@
 
 **Natija:** login qilib, videodagidek animatsiyali dashboardga kirish mumkin (rolga qarab kompaniya yoki admin paneli).
 
-## 4-bosqich — Shaxmatka sahifasi (asosiy funksiya)
-- [ ] Loyiha va blok tanlash (animatsiyali tablar)
-- [ ] Qavatlar × kvartiralar to'ri, holatga qarab ranglar
-- [ ] Filtrlar: xonalar soni, narx oralig'i, holat
-- [ ] Kvartiraga bosilganda yon panel: ma'lumotlari va amallar
-- [ ] Loyihalar sahifasi: loyiha va blok qo'shish
-- [ ] **Rasmlar:** loyiha galereyasi (bir nechta rasm), blok rasmlari, xonadon planirovkasi (rasm), drag-and-drop yuklash, tartibni o'zgartirish
-- [ ] **Lokatsiya:** loyiha uchun xaritada nuqta tanlash (kenglik/uzunlik) + manzil, yaqin joylar (maktab, metro)
+## 4-bosqich — Shaxmatka sahifasi (asosiy funksiya) ✅
+- [x] Loyiha va blok tanlash (animatsiyali tablar)
+- [x] Qavatlar × kvartiralar to'ri, holatga qarab ranglar; mos kelmaganlar xiralashadi
+- [x] Filtrlar: xonalar soni, narx oralig'i, holat
+- [x] Kvartiraga bosilganda yon panel: planirovka, ma'lumotlar, narxni o'zgartirish (sabab bilan), sotuvdan olish, narx tarixi
+- [x] Narxlarni ommaviy o'zgartirish oynasi (loyiha/blok, qavatlar, xonalar; foiz/summa/aniq narx)
+- [x] Loyihalar sahifasi: loyiha qo'shish/tahrirlash, blok qo'shish (planirovka quruvchi + narx bo'yicha oldindan ko'rish)
+- [x] **Rasmlar:** loyiha galereyasi (turlari: vizualizatsiya, fasad, interyer, hudud, qurilish jarayoni), blokka biriktirish, drag-and-drop yuklash, sudrab tartiblash, birinchi rasm — muqova, lightbox
+- [x] **Planirovkalar:** generatsiyada avtomatik yaratiladi, har biriga chizma yuklanadi va shu turdagi barcha xonadonlarda ko'rinadi
+- [x] **Lokatsiya:** xaritada nuqta (bosish/surish, koordinata yoki Google/Yandex havolasini qo'yish, "mening joylashuvim"), yaqin joylar (maktab, metro, park...)
+- [x] Xodimlar sahifasi: qo'shish, rol, parol, bloklash/faollashtirish
+- [x] Demo rasmlar: real rasmlar kelguncha kodda chizilgan fasad, hovli, interyer, qurilish va planirovka chizmalari (`manage.py seed_media`)
+- [x] Xavfsizlik kuchaytirildi (pastga qarang)
 
-**Natija:** menejer shaxmatkada bo'sh kvartiralarni ko'radi.
+**Natija:** menejer shaxmatkada bo'sh kvartiralarni ko'radi; direktor loyiha, blok, rasm, planirovka va lokatsiyani o'zi boshqaradi.
 
-## 5-bosqich — Mijozlar va bron
-- [ ] Mijozlar bazasi: F.I.Sh., telefon, manba (Instagram, Telegram, tanish, ofis), izoh, mas'ul menejer
-- [ ] Lid holatlari: yangi → bog'lanildi → ko'rishga keldi → bron → shartnoma / rad etdi
-- [ ] Kvartirani bron qilish (muddati bilan); muddat tugasa avtomatik bekor bo'ladi
-- [ ] Mijozlar sahifasi: jadval, qidiruv, qo'shish va tahrirlash
+## 5-bosqich — Mijozlar va bron ✅
+- [x] Mijozlar bazasi: F.I.Sh., telefon (+ qo'shimcha), manba (Instagram, Telegram, tanish, ofis, qo'ng'iroq, sayt), izoh, mas'ul menejer, qiziqqan loyiha, byudjet
+- [x] Lid holatlari: yangi → bog'lanildi → ko'rishga keldi → bron → shartnoma / rad etdi (rad etish sababi bilan; bron va shartnoma — avtomatik)
+- [x] Mijoz tarixi: izoh, qo'ng'iroq, uchrashuv, holat/menejer o'zgarishlari, bron hodisalari
+- [x] Kvartirani bron qilish (muddati bilan, bron paytidagi narx saqlanadi); uzaytirish va bekor qilish (sababi bilan)
+- [x] Muddat tugasa bron avtomatik yopiladi, xonadon yana sotuvga chiqadi (har so'rovda + `manage.py expire_bookings` cron uchun)
+- [x] Mijozlar sahifasi: voronka, filtrlar (holat, manba, menejer), ism/telefon bo'yicha qidiruv, qo'shish va tahrirlash, mijoz paneli
+- [x] Bronlar sahifasi: faol / muddati tugagan / bekor qilingan, qolgan vaqt, direktor uchun bron muddati sozlamasi
+- [x] Shaxmatkadan bron: xonadon panelida mijozni qidirish yoki yangisini qo'shish, faol bron ma'lumoti
+- [x] Xavfsizlik kuchaytirildi (pastga qarang)
 
 **Natija:** mijozni bazaga kiritib, unga kvartira bron qilish mumkin.
 
@@ -80,7 +90,22 @@ Har bir kompaniya uchun mijozlar ko'radigan ochiq sahifa: `kalit.uz/<kompaniya>`
 
 **Natija:** begona odam login qilmasdan barcha bo'sh xonadon va narxlarni ko'radi va ariza qoldiradi; ariza menejerga boradi.
 
-## 7-bosqich — Shartnoma va rassrochka
+## 7-bosqich — Virtual tur va 3D (ommaviy saytda)
+Stadiondagi "o'rindiqdan ko'rinish" g'oyasi, faqat xonadon uchun: mijoz xonadonni tanlaydi va ichkarisini hamda derazadan ko'rinishni o'z ko'zi bilan ko'radi.
+- [ ] **Interaktiv fasad:** bino rasmi (render yoki dron surati) ustida qavat va xonadonlar belgilanadi; sichqoncha qavatni yoritadi, bosilganda o'sha qavat planirovkasi ochiladi. Admin uchun rasm ustida poligon chizish muharriri
+- [ ] **3D shaxmatka:** blok parametrlaridan (qavat, podyezd) avtomatik 3D bino (three.js), xonadonlar holat rangida; aylantirib ko'rish
+- [ ] **360° virtual tur:** har bir planirovka turi uchun xonalar panoramasi (360° rasm), "sudrab atrofga qarash", xonadan xonaga o'tish nuqtalari (hotspot), mobil giroskop
+- [ ] **Derazadan ko'rinish:** qavat balandligi va tomon (shimol/janub...) bo'yicha dron panoramasi — har xonadon o'z qavatiga eng yaqin ko'rinishni oladi
+- [ ] **Xonadon kartasi (videodagi pastki panel kabi):** maydon, qavat, tomon, quyosh tushishi, narx, "Ariza qoldirish" tugmasi, mini-shaxmatkada joylashuvi
+- [ ] Ixtiyoriy (premium): arxitektordan GLB/3D model bo'lsa — to'liq 3D ko'rinish
+- [ ] Admin: 360° rasmlarni yuklash, planirovka turiga biriktirish, hotspot qo'yish
+- [ ] **Xavfsizlik:** katta fayllar uchun alohida limit (panorama ≤ 30 MB), serverda o'lchamini kichraytirish va WebP/tile'larga bo'lish, EXIF/GPS metama'lumotlarini o'chirish, faqat rasm formatlari, CDN orqali berish
+
+**Kontent:** 360° rasmlar qurilish kompaniyasining arxitektura vizualizatsiyalaridan (ular deyarli har doim bor), namuna xonadondan (360° kamera yoki telefon) yoki dron suratidan olinadi.
+
+**Natija:** mijoz saytda xonadonni tanlab, ichkarisini 360° aylanib ko'radi va derazadan ko'rinishni ko'radi — login qilmasdan.
+
+## 8-bosqich — Shartnoma va rassrochka
 - [ ] Shartnoma tuzish: boshlang'ich to'lov, muddat (oylar), boshlanish sanasi
 - [ ] To'lov grafigini avtomatik yaratish
 - [ ] To'lov qabul qilish (naqd, karta, Click, Payme, bank) va grafik bo'yicha taqsimlash
@@ -89,7 +114,7 @@ Har bir kompaniya uchun mijozlar ko'radigan ochiq sahifa: `kalit.uz/<kompaniya>`
 
 **Natija:** kvartira sotiladi, rassrochka grafigi tuziladi va to'lovlar kuzatiladi.
 
-## 8-bosqich — Qarzdorlar va dashboard
+## 9-bosqich — Qarzdorlar va dashboard
 - [ ] Qarzdorlar: muddati o'tgan to'lovlar, necha kun kechikkani, summasi
 - [ ] Dashboard: sotilgan / bron / bo'sh kvartiralar, tushum, kutilayotgan to'lovlar, qarz
 - [ ] Grafiklar: oylik sotuv, oylik tushum
@@ -97,14 +122,14 @@ Har bir kompaniya uchun mijozlar ko'radigan ochiq sahifa: `kalit.uz/<kompaniya>`
 
 **Natija:** rahbar bitta sahifada biznes holatini ko'radi.
 
-## 9-bosqich — Integratsiyalar va avtomatlashtirish
+## 10-bosqich — Integratsiyalar va avtomatlashtirish
 - [ ] Telegram bot (aiogram): mijozga to'lov eslatmasi, menejerga yangi lid haqida xabar
 - [ ] SMS eslatma (Eskiz.uz)
 - [ ] Click / Payme orqali onlayn to'lov havolasi
 - [ ] Excel'ga eksport (mijozlar, to'lovlar, qarzdorlar)
 - [ ] Amallar tarixi (audit log): kim, qachon, nimani o'zgartirdi
 
-## 10-bosqich — Ishga tushirish (deploy)
+## 11-bosqich — Ishga tushirish (deploy)
 - [ ] Docker + docker-compose (api, db, frontend, nginx)
 - [ ] PostgreSQL, backup
 - [ ] Domen + HTTPS
@@ -125,9 +150,22 @@ Har bir kompaniya uchun mijozlar ko'radigan ochiq sahifa: `kalit.uz/<kompaniya>`
 - **(3-bosqich)** Brauzerda refresh token httpOnly + SameSite=Strict cookie'da (JS o'qiy olmaydi), access token faqat xotirada; localStorage'da hech qanday token yo'q
 - **(3-bosqich)** Cookie bilan ishlovchi auth so'rovlari `X-Kalit-Client` sarlavhasini talab qiladi — CSRF himoyasi; refresh endpointi ham rate limit ostida
 - **(3-bosqich)** Frontend va API bir origin'da (Vite proxy / keyin nginx) — CORS ochilmaydi; rol bo'yicha sahifa himoyasi (asosiy tekshiruv baribir backendda)
+- **(4-bosqich)** Har bir yuklangan rasm serverda qaytadan chiziladi va WebP qilinadi: EXIF/GPS (telefon rasmidagi joylashuv) o'chadi, rasm ichiga yashirilgan kod (polyglot) yo'qoladi; SVG/GIF qabul qilinmaydi
+- **(4-bosqich)** "Dekompressiya bombasi" himoyasi (40 megapikseldan katta rasm ochilmasdan rad etiladi), rasm 15 MB, o'lcham 2560 px gacha kichraytiriladi
+- **(4-bosqich)** Yuklash uchun alohida rate limit (300/soat), loyihaga 80 rasm / 120 planirovka limiti; o'chirilgan rasm fayllari diskdan ham o'chadi
+- **(4-bosqich)** Rasm, blok va planirovka boshqa kompaniya loyihasiga biriktirilmaydi (IDOR); tartiblash faqat o'z loyihasidagi rasmlarning to'liq ro'yxati bilan
+- **(4-bosqich)** Media URL'lari nisbiy (`/media/...`) — Host sarlavhasini soxtalashtirib boshqa domenga yo'naltirib bo'lmaydi
+- **(4-bosqich)** "Atrofdagi joylar" JSON'i qat'iy sxema bo'yicha tekshiriladi (faqat ruxsat etilgan turlar va maydonlar), koordinatalar diapazoni tekshiriladi
+- **(4-bosqich)** Bloklangan xodimni qayta faollashtirish ham tarif limitiga (max_users) tekshiriladi
+- **(5-bosqich)** Ikki menejer bitta xonadonni bir vaqtda bron qila olmaydi: tranzaksiya + `SELECT … FOR UPDATE` va bazadagi "bitta faol bron" cheklovi
+- **(5-bosqich)** Menejer faqat o'z va biriktirilmagan mijozlarni ko'radi; begona mijoz/bron 404, dublikat telefonda begona mijoz ismi oshkor qilinmaydi, shaxmatkada esa faqat menejer ismi ko'rinadi
+- **(5-bosqich)** Menejer bronni kompaniya sozlamasidagi muddatdan (standart 3 kun) uzoqqa qila olmaydi, uzaytirishda ham jami muddat cheklanadi; direktor — 30 kungacha
+- **(5-bosqich)** Bekor qilish/uzaytirish — faqat bronni qilgan menejer yoki direktor; kassir faqat ko'radi; mas'ul menejerni faqat direktor o'zgartiradi
+- **(5-bosqich)** Bron va sotilgan holatlar faqat bron moduli orqali o'zgaradi (qo'lda emas), bron qilingan xonadon narxi qotadi; bron tarixi bor mijozni o'chirib bo'lmaydi
+- **(5-bosqich)** Bron yaratish uchun rate limit (120/soat), mijozlar ro'yxatini ommaviy eksport qilish yo'q, qidiruv uzunligi cheklangan; telefonlar bitta formatga keltiriladi
 
 ### Reliz
-To'liq mahsulot chiqariladi: 1–10-bosqichlarning hammasi tayyor bo'lgach ishga tushiriladi.
+To'liq mahsulot chiqariladi: 1–11-bosqichlarning hammasi tayyor bo'lgach ishga tushiriladi.
 Bosqichlar ketma-ket bajariladi, har biri tugagach tekshirilib keyingisiga o'tiladi.
 
 ### Keyingi mahsulot

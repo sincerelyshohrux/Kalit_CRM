@@ -1,3 +1,4 @@
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.utils import timezone
 
@@ -32,6 +33,10 @@ class Company(TimeStampedModel):
     plan = models.CharField("tarif", max_length=20, choices=Plan.choices, default=Plan.TRIAL)
     subscription_until = models.DateField("obuna muddati", null=True, blank=True)
     max_users = models.PositiveIntegerField("maksimal xodimlar", default=10)
+    booking_days = models.PositiveSmallIntegerField(
+        "bron muddati (kun)", default=3, validators=[MinValueValidator(1), MaxValueValidator(30)],
+        help_text="Menejer bron qila oladigan maksimal muddat",
+    )
 
     class Meta:
         verbose_name = "kompaniya"

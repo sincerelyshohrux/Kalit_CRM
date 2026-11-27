@@ -25,12 +25,12 @@ def validate_inn(value: str) -> None:
         raise ValidationError("STIR 9 ta raqamdan iborat bo'lishi kerak.")
 
 
-def validate_image_file(file) -> None:
+def validate_image_file(file, max_mb: int | None = None) -> None:
     """Rasm hajmi va haqiqiy formatini tekshiradi (kengaytmaga ishonmaydi)."""
     from django.conf import settings
     from PIL import Image
 
-    max_mb = getattr(settings, "MAX_IMAGE_SIZE_MB", 5)
+    max_mb = max_mb or getattr(settings, "MAX_IMAGE_SIZE_MB", 5)
     if file.size > max_mb * 1024 * 1024:
         raise ValidationError(f"Rasm hajmi {max_mb} MB dan oshmasligi kerak.")
     try:

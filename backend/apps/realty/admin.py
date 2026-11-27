@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Block, PriceChange, Project, Unit
+from .models import Block, Layout, PriceChange, Project, ProjectPhoto, Unit
 
 
 class BlockInline(admin.TabularInline):
@@ -46,3 +46,18 @@ class PriceChangeAdmin(admin.ModelAdmin):
 
     def has_change_permission(self, request, obj=None):
         return False
+
+
+@admin.register(ProjectPhoto)
+class ProjectPhotoAdmin(admin.ModelAdmin):
+    list_display = ["id", "project", "block", "kind", "caption", "sort_order"]
+    list_filter = ["kind", "company"]
+    readonly_fields = ["company", "width", "height"]
+
+
+@admin.register(Layout)
+class LayoutAdmin(admin.ModelAdmin):
+    list_display = ["name", "project", "unit_type", "rooms", "area"]
+    list_filter = ["unit_type", "company"]
+    search_fields = ["name", "project__name"]
+    readonly_fields = ["company"]

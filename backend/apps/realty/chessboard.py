@@ -8,11 +8,13 @@ kelmaganlarini xira ko'rsatadi.
 from collections import Counter, defaultdict
 from decimal import Decimal, InvalidOperation
 
-from .models import Project, Unit
+from django.core.files.storage import default_storage
+
+from .models import Layout, Project, Unit
 
 UNIT_FIELDS = (
     "id", "block_id", "entrance", "floor", "position", "number", "unit_type",
-    "rooms", "area", "price_per_m2", "total_price", "status", "finishing",
+    "rooms", "area", "price_per_m2", "total_price", "status", "finishing", "layout_id",
 )
 
 
@@ -69,7 +71,31 @@ def _summary(counter: Counter) -> dict:
     }
 
 
-def build_chessboard(project: Project, params) -> dict:
+def _bookings(blocks, user) -> dict[int, dict]:
+    """Faol bronlar: xonadon -> qisqa ma'lumot. Menejerga begona mijoz ismi ko'rsatilmaydi."""
+    from apps.accounts.models import Role
+    from apps.crm.models import Booking
+
+    rows = Booking.objects.filter(unit__block__in=blocks, status=Booking.Status.ACTIVE).values(
+        "id", "unit_id", "expires_at", "created_by_id", "client_id", "client__manager_id",
+        "client__first_name", "client__last_name", "created_by__first_name", "created_by__last_name",
+    )
+    result = {}
+    for r in rows:
+        mine = user is not None and user.id in (r["created_by_id"], r["client__manager_id"])
+        visible = user is None or user.role != Role.MANAGER or mine
+        result[r["unit_id"]] = {
+            "id": r["id"],
+            "expires_at": r["expires_at"].isoformat(),
+            "manager": f"{r['created_by__first_name']} {r['created_by__last_name']}".strip() or None,
+            "client_id": r["client_id"] if visible else None,
+            "client_name": f"{r['client__last_name']} {r['client__first_name']}".strip() if visible else None,
+            "mine": mine,
+        }
+    return result
+
+
+def build_chessboard(project: Project, params, user=None) -> dict:
     filters = parse_filters(params)
     block_id = _int_list(params.get("block"))
 
@@ -79,6 +105,8 @@ def build_chessboard(project: Project, params) -> dict:
 
     units = Unit.objects.filter(block__in=blocks).values(*UNIT_FIELDS).order_by("entrance", "-floor", "position")
 
+    bookings = _bookings(blocks, user)
+
     # block -> entrance -> floor -> [units]
     grid: dict = defaultdict(lambda: defaultdict(lambda: defaultdict(list)))
     per_block: dict[int, Counter] = defaultdict(Counter)
@@ -86,6 +114,7 @@ def build_chessboard(project: Project, params) -> dict:
     for u in units:
         u["area"] = str(u["area"])
         u["match"] = _matches({**u, "area": Decimal(u["area"])}, filters)
+        u["booking"] = bookings.get(u["id"])
         matched += u["match"]
         grid[u["block_id"]][u["entrance"]][u["floor"]].append(u)
         per_block[u["block_id"]][u["status"]] += 1
@@ -114,8 +143,18 @@ def build_chessboard(project: Project, params) -> dict:
             }
         )
 
+    layouts = [
+        {
+            "id": lay["id"], "name": lay["name"], "rooms": lay["rooms"], "area": str(lay["area"]),
+            "image": default_storage.url(lay["image"]) if lay["image"] else None,
+            "thumb": default_storage.url(lay["thumb"]) if lay["thumb"] else None,
+        }
+        for lay in Layout.objects.filter(project=project).values("id", "name", "rooms", "area", "image", "thumb")
+    ]
+
     return {
         "project": {"id": project.id, "name": project.name, "status": project.status},
+        "layouts": layouts,
         "summary": {**_summary(total), "matched": matched},
         "statuses": [{"value": v, "label": label} for v, label in Unit.Status.choices],
         "blocks": result_blocks,

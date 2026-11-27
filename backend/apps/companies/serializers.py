@@ -23,7 +23,7 @@ class CompanySerializer(serializers.ModelSerializer):
         model = Company
         fields = [
             "id", "name", "legal_name", "inn", "phone", "email", "city", "address", "logo",
-            "status", "plan", "subscription_until", "max_users", "users_count", "created_at",
+            "status", "plan", "subscription_until", "max_users", "booking_days", "users_count", "created_at",
         ]
         # Tarif va holatni faqat platforma admini o'zgartiradi
         read_only_fields = ["status", "plan", "subscription_until", "max_users", "created_at"]
@@ -64,7 +64,7 @@ class PlatformCompanySerializer(serializers.ModelSerializer):
         model = Company
         fields = [
             "id", "name", "legal_name", "inn", "phone", "email", "city", "address", "logo",
-            "status", "plan", "subscription_until", "max_users",
+            "status", "plan", "subscription_until", "max_users", "booking_days",
             "users_count", "director", "director_info", "created_at", "updated_at",
         ]
         read_only_fields = ["created_at", "updated_at"]

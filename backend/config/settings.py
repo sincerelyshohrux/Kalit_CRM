@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     "apps.companies",
     "apps.accounts",
     "apps.realty",
+    "apps.crm",
 ]
 
 MIDDLEWARE = [
@@ -146,6 +147,8 @@ REST_FRAMEWORK = {
         "login": "10/min",
         "refresh": "30/min",
         "bulk": "30/min",
+        "upload": "300/hour",
+        "booking": "120/hour",
     },
     "EXCEPTION_HANDLER": "apps.common.exceptions.exception_handler",
     "DEFAULT_RENDERER_CLASSES": ["rest_framework.renderers.JSONRenderer"]
@@ -194,6 +197,7 @@ DATA_UPLOAD_MAX_MEMORY_SIZE = 5 * 1024 * 1024
 FILE_UPLOAD_MAX_MEMORY_SIZE = 5 * 1024 * 1024
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 2000
 MAX_IMAGE_SIZE_MB = 5
+MAX_PHOTO_SIZE_MB = 15  # telefon/kamera rasmlari uchun (qayta ishlangach ~0.5 MB bo'ladi)
 
 # --- HTTP xavfsizlik sarlavhalari ---
 SECURE_CONTENT_TYPE_NOSNIFF = True

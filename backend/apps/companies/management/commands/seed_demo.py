@@ -8,6 +8,7 @@ Faqat DEBUG rejimida ishlaydi. Demo login ma'lumotlari pastdagi DEMO_USERS'da.
 from datetime import timedelta
 
 from django.conf import settings
+from django.core.management import call_command
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 from django.utils import timezone
@@ -65,6 +66,8 @@ class Command(BaseCommand):
                 )
 
         self._seed_realty(company)
+        call_command("seed_media")
+        call_command("seed_crm")
         self.stdout.write(self.style.SUCCESS("Demo ma'lumotlar tayyor."))
         self.stdout.write("Barcha demo foydalanuvchilar paroli: DEMO_PASSWORD (seed_demo.py ichida).")
         for phone, first, last, role in DEMO_USERS:

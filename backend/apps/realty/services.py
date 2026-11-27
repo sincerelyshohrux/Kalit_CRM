@@ -7,7 +7,7 @@ from django.db import transaction
 from django.utils import timezone
 from rest_framework.exceptions import ValidationError
 
-from .models import Block, PriceChange, Unit
+from .models import Block, Layout, PriceChange, Unit, layout_name
 
 MAX_UNITS_PER_BLOCK = 5000
 
@@ -44,13 +44,16 @@ def generate_units(
     if block.units.exists():
         raise ValidationError({"detail": "Bu blokda xonadonlar allaqachon yaratilgan."})
 
+    # Har bir planirovka turi uchun Layout (loyiha darajasida, takrorlanmaydi)
+    layouts = [ensure_layout(block.project, item) for item in layout]
+
     units: list[Unit] = []
     number = 0
     for entrance in range(1, block.entrances_count + 1):
         for floor in range(block.start_floor, block.top_floor + 1):
             multiplier = 1 + (floor_step_percent / 100) * (floor - block.start_floor)
             price = round_price(Decimal(base_price_per_m2) * multiplier)
-            for position, item in enumerate(layout, start=1):
+            for position, (item, layout_obj) in enumerate(zip(layout, layouts), start=1):
                 number += 1
                 units.append(
                     Unit(
@@ -63,11 +66,21 @@ def generate_units(
                         unit_type=item.unit_type,
                         rooms=item.rooms,
                         area=item.area,
+                        layout=layout_obj,
                         price_per_m2=price,
                         total_price=Unit.calc_total(item.area, price),
                     )
                 )
     return Unit.objects.bulk_create(units, batch_size=500)
+
+
+def ensure_layout(project, item: LayoutItem) -> Layout:
+    obj, _ = Layout.objects.get_or_create(
+        project=project,
+        name=layout_name(item.unit_type, item.rooms, item.area),
+        defaults={"company_id": project.company_id, "unit_type": item.unit_type, "rooms": item.rooms, "area": item.area},
+    )
+    return obj
 
 
 class PriceMode:

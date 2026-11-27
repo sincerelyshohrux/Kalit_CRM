@@ -109,20 +109,23 @@ export function PillNav({ activeKey, orientation = 'vertical', radius, className
   useLayoutEffect(() => {
     const container = root.current
     if (!container) return
-    let first = true
+    // Faqat o'lcham haqiqatan o'zgarsa qayta joylaymiz: observe() ning dastlabki chaqiruvi
+    // aktiv animatsiyani buzmasin, lekin bir vaqtda yuklangan sanoqlar ham o'tkazib yuborilmasin
+    const key = (e: Edges | null) => (e ? `${e.t}|${e.l}|${e.b}|${e.r}` : '')
+    let last = key(measure())
     const ro = new ResizeObserver(() => {
-      // observe() darhol bir marta chaqiradi — u animatsiyani buzmasligi kerak
-      if (first) {
-        first = false
-        return
-      }
       const to = measure()
+      const k = key(to)
+      if (k === last) return
+      last = k
       if (!to || !state.current) return
       gsap.killTweensOf(state.current)
       state.current = { ...to }
       paint()
     })
     ro.observe(container)
+    // Element ichidagi matn/son o'zgarsa (masalan, sanoq keyin yuklansa) ham qayta o'lchaymiz
+    container.querySelectorAll<HTMLElement>(':scope > .pillnav__base [data-pill-key]').forEach((el) => ro.observe(el))
     return () => ro.disconnect()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeKey])

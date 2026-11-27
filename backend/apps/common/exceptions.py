@@ -3,6 +3,7 @@ import logging
 from django.conf import settings
 from django.core.exceptions import PermissionDenied, ValidationError as DjangoValidationError
 from django.db import IntegrityError
+from django.db.models import ProtectedError
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
@@ -27,6 +28,12 @@ def exception_handler(exc, context):
     response = drf_exception_handler(exc, context)
     if response is not None:
         return response
+
+    if isinstance(exc, ProtectedError):
+        return Response(
+            {"detail": "Bu yozuvga boshqa ma'lumotlar bog'langan — o'chirib bo'lmaydi."},
+            status=status.HTTP_409_CONFLICT,
+        )
 
     if isinstance(exc, IntegrityError):
         logger.warning("IntegrityError: %s", exc)

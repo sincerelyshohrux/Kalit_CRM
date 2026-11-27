@@ -147,14 +147,17 @@ class EmployeeSerializer(serializers.ModelSerializer):
 
     def validate(self, attrs):
         request = self.context["request"]
-        if self.instance is None:
-            if not attrs.get("password"):
-                raise serializers.ValidationError({"password": "Yangi xodim uchun parol majburiy."})
-            company = request.user.company
+        company = request.user.company
+        # Yangi xodim yoki bloklangan xodimni qayta faollashtirish — ikkalasi ham tarif limitiga kiradi
+        reactivating = self.instance is not None and not self.instance.is_active and attrs.get("is_active") is True
+        if self.instance is None or reactivating:
             if company.users.filter(is_active=True).count() >= company.max_users:
                 raise serializers.ValidationError(
                     {"detail": f"Tarifingiz bo'yicha xodimlar soni {company.max_users} tadan oshmasligi kerak."}
                 )
+        if self.instance is None:
+            if not attrs.get("password"):
+                raise serializers.ValidationError({"password": "Yangi xodim uchun parol majburiy."})
         elif self.instance.pk == request.user.pk:
             # Direktor o'zini bloklab yoki rolini tushirib qo'ymasin
             if attrs.get("is_active") is False or attrs.get("role", self.instance.role) != self.instance.role:

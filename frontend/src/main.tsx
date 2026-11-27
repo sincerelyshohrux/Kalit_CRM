@@ -5,6 +5,8 @@ import './styles/base.css'
 import './styles/components.css'
 import './styles/layout.css'
 import './styles/pages.css'
+import './styles/realty.css'
+import './styles/crm.css'
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { StrictMode } from 'react'

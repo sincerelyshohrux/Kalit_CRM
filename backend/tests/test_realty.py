@@ -38,6 +38,7 @@ def test_create_block_with_generation(api, director_a, project_a):
         "start_floor": 2, "generate": GEN,
     }, format="json")
     assert r.status_code == 201, r.data
+    assert r.data["units_total"] == 9 * 2 * 3 and r.data["units_available"] == 9 * 2 * 3
     block = Block.objects.get(pk=r.data["id"])
     units = block.units.all()
     assert units.count() == 9 * 2 * 3

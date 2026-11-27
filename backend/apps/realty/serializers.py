@@ -1,12 +1,26 @@
 from decimal import Decimal
 
+from django.conf import settings
+from django.core.exceptions import ValidationError as DjangoValidationError
+from django.core.files.storage import default_storage
 from django.db import transaction
 from rest_framework import serializers
 
-from apps.common.fields import CompanyScopedPrimaryKeyRelatedField
+from apps.common.fields import CompanyScopedPrimaryKeyRelatedField, MediaURLField
+from apps.common.images import process_image
 
 from . import services
-from .models import MAX_UNITS_PER_FLOOR, Block, PriceChange, Project, Unit
+from .models import (
+    MAX_LAYOUTS_PER_PROJECT,
+    MAX_PHOTOS_PER_PROJECT,
+    MAX_UNITS_PER_FLOOR,
+    Block,
+    Layout,
+    PriceChange,
+    Project,
+    ProjectPhoto,
+    Unit,
+)
 
 MAX_PRICE_PER_M2 = 1_000_000_000  # 1 mlrd so'm/m² — aqlga sig'maydigan qiymatlardan himoya
 
@@ -19,10 +33,47 @@ class StatsMixin(serializers.Serializer):
     min_price = serializers.IntegerField(read_only=True, allow_null=True)
 
 
+def processed(file, **kwargs):
+    """Rasmni qayta ishlaydi; Django xatosini DRF xatosiga aylantiradi."""
+    try:
+        return process_image(file, **kwargs)
+    except DjangoValidationError as e:
+        raise serializers.ValidationError(e.messages)
+
+
+NEARBY_KINDS = [
+    ("school", "Maktab"), ("kindergarten", "Bog'cha"), ("hospital", "Shifoxona"),
+    ("metro", "Metro"), ("bus", "Bekat"), ("park", "Park"), ("mall", "Savdo markazi"),
+    ("market", "Bozor"), ("mosque", "Masjid"), ("university", "Universitet"), ("sport", "Sport"),
+    ("other", "Boshqa"),
+]
+
+
+class NearbyItemSerializer(serializers.Serializer):
+    """Atrofdagi joy. JSON ichiga faqat shu tekshirilgan maydonlar yoziladi."""
+
+    kind = serializers.ChoiceField(choices=NEARBY_KINDS)
+    name = serializers.CharField(max_length=100)
+    distance_m = serializers.IntegerField(min_value=0, max_value=50_000)
+
+
+def coord_field(limit: int):
+    return serializers.DecimalField(
+        max_digits=9, decimal_places=6, min_value=Decimal(-limit), max_value=Decimal(limit),
+        coerce_to_string=False, allow_null=True, required=False,
+    )
+
+
 class ProjectSerializer(StatsMixin, serializers.ModelSerializer):
     status_display = serializers.CharField(source="get_status_display", read_only=True)
     housing_class_display = serializers.CharField(source="get_housing_class_display", read_only=True)
     blocks_count = serializers.IntegerField(read_only=True)
+    photos_count = serializers.IntegerField(read_only=True)
+    layouts_count = serializers.IntegerField(read_only=True)
+    cover = serializers.SerializerMethodField()
+    latitude = coord_field(90)
+    longitude = coord_field(180)
+    nearby = NearbyItemSerializer(many=True, required=False, max_length=20)
 
     class Meta:
         model = Project
@@ -30,10 +81,17 @@ class ProjectSerializer(StatsMixin, serializers.ModelSerializer):
             "id", "name", "city", "district", "address", "description",
             "housing_class", "housing_class_display", "status", "status_display",
             "start_date", "completion_date", "cover", "is_active",
-            "blocks_count", "units_total", "units_available", "units_booked", "units_sold", "min_price",
+            "latitude", "longitude", "nearby",
+            "blocks_count", "photos_count", "layouts_count",
+            "units_total", "units_available", "units_booked", "units_sold", "min_price",
             "created_at", "updated_at",
         ]
         read_only_fields = ["created_at", "updated_at"]
+
+    def get_cover(self, obj) -> str | None:
+        """Muqova — galereyadagi birinchi rasm (annotate qilingan yo'l, qo'shimcha so'rovsiz)."""
+        path = getattr(obj, "cover_path", None)
+        return default_storage.url(path) if path else None
 
     def validate_name(self, value):
         company = self.context["request"].user.company
@@ -49,6 +107,12 @@ class ProjectSerializer(StatsMixin, serializers.ModelSerializer):
         end = attrs.get("completion_date", getattr(self.instance, "completion_date", None))
         if start and end and end < start:
             raise serializers.ValidationError({"completion_date": "Topshirish sanasi boshlanish sanasidan oldin bo'lishi mumkin emas."})
+        lat = attrs.get("latitude", getattr(self.instance, "latitude", None))
+        lng = attrs.get("longitude", getattr(self.instance, "longitude", None))
+        if (lat is None) != (lng is None):
+            raise serializers.ValidationError({"latitude": "Kenglik va uzunlik birga kiritilishi kerak."})
+        if "nearby" in attrs:
+            attrs["nearby"] = [dict(item) for item in attrs["nearby"]]
         return attrs
 
 
@@ -111,6 +175,9 @@ class BlockSerializer(StatsMixin, serializers.ModelSerializer):
     @transaction.atomic
     def create(self, validated_data):
         gen = validated_data.pop("generate", None)
+        if "sort_order" not in validated_data:
+            last = Block.objects.filter(project=validated_data["project"]).order_by("-sort_order").values_list("sort_order", flat=True).first()
+            validated_data["sort_order"] = (last or 0) + 1
         block = super().create(validated_data)
         if gen:
             services.generate_units(
@@ -134,14 +201,17 @@ class UnitSerializer(serializers.ModelSerializer):
     unit_type_display = serializers.CharField(source="get_unit_type_display", read_only=True)
     price_per_m2 = serializers.IntegerField(min_value=0, max_value=MAX_PRICE_PER_M2)
     price_reason = serializers.CharField(write_only=True, required=False, allow_blank=True, max_length=255)
+    layout = CompanyScopedPrimaryKeyRelatedField(queryset=Layout.objects.all(), allow_null=True, required=False)
+    layout_info = serializers.SerializerMethodField()
+    active_booking = serializers.SerializerMethodField()
 
     class Meta:
         model = Unit
         fields = [
             "id", "project_id", "project_name", "block", "block_name", "entrance", "floor", "position", "number",
             "unit_type", "unit_type_display", "rooms", "area", "price_per_m2", "total_price",
-            "status", "status_display", "finishing", "has_balcony", "layout_image", "note",
-            "price_reason", "created_at", "updated_at",
+            "status", "status_display", "finishing", "has_balcony", "layout", "layout_info", "note",
+            "active_booking", "price_reason", "created_at", "updated_at",
         ]
         # Joylashuv generatsiya paytida belgilanadi; holat bron/shartnoma orqali o'zgaradi
         read_only_fields = ["block", "entrance", "floor", "position", "total_price", "created_at", "updated_at"]
@@ -151,6 +221,49 @@ class UnitSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Bron va sotilgan holatlari faqat bron/shartnoma orqali o'rnatiladi.")
         if self.instance and self.instance.status in Unit.LOCKED_STATUSES and value != self.instance.status:
             raise serializers.ValidationError("Bron qilingan yoki sotilgan xonadon holatini qo'lda o'zgartirib bo'lmaydi.")
+        return value
+
+    def get_layout_info(self, obj) -> dict | None:
+        lay = obj.layout
+        if not lay:
+            return None
+        return {
+            "id": lay.id, "name": lay.name,
+            "image": lay.image.url if lay.image else None,
+            "thumb": lay.thumb.url if lay.thumb else None,
+        }
+
+    def get_active_booking(self, obj) -> dict | None:
+        from apps.accounts.models import Role
+        from apps.crm.models import Booking
+
+        if hasattr(obj, "active_bookings"):
+            booking = obj.active_bookings[0] if obj.active_bookings else None
+        elif obj.status == Unit.Status.BOOKED:
+            booking = (
+                Booking.objects.filter(unit=obj, status=Booking.Status.ACTIVE).select_related("client", "created_by").first()
+            )
+        else:
+            booking = None
+        if booking is None:
+            return None
+        user = self.context["request"].user
+        mine = user.id in (booking.created_by_id, booking.client.manager_id)
+        visible = user.role != Role.MANAGER or mine
+        return {
+            "id": booking.id,
+            "expires_at": booking.expires_at,
+            "total_price": booking.total_price,
+            "manager": booking.created_by.full_name if booking.created_by else None,
+            "client_id": booking.client_id if visible else None,
+            "client_name": booking.client.full_name if visible else None,
+            "client_phone": booking.client.phone if visible else None,
+            "mine": mine,
+        }
+
+    def validate_layout(self, value):
+        if value and self.instance and value.project_id != self.instance.block.project_id:
+            raise serializers.ValidationError("Planirovka boshqa loyihaga tegishli.")
         return value
 
     def validate(self, attrs):
@@ -224,3 +337,128 @@ class PriceChangeSerializer(serializers.ModelSerializer):
             "changed_by", "changed_by_name", "reason", "created_at",
         ]
         read_only_fields = fields
+
+
+class ProjectPhotoSerializer(serializers.ModelSerializer):
+    """Galereya rasmi. Yuklashda: multipart `image` + `project` (+ `block`, `kind`, `caption`)."""
+
+    project = CompanyScopedPrimaryKeyRelatedField(queryset=Project.objects.all())
+    block = CompanyScopedPrimaryKeyRelatedField(queryset=Block.objects.all(), allow_null=True, required=False)
+    image = MediaURLField()
+    thumb = MediaURLField(read_only=True)
+    kind_display = serializers.CharField(source="get_kind_display", read_only=True)
+
+    class Meta:
+        model = ProjectPhoto
+        fields = [
+            "id", "project", "block", "kind", "kind_display", "image", "thumb",
+            "width", "height", "caption", "sort_order", "created_at",
+        ]
+        read_only_fields = ["width", "height", "sort_order", "created_at"]
+
+    def get_fields(self):
+        fields = super().get_fields()
+        if isinstance(self.instance, ProjectPhoto):
+            # Mavjud rasmni almashtirib bo'lmaydi (o'chirib, yangisini yuklang); loyihani ham
+            fields["image"].read_only = True
+            fields["project"].read_only = True
+        return fields
+
+    def validate(self, attrs):
+        project = attrs.get("project", getattr(self.instance, "project", None))
+        block = attrs.get("block")
+        if block and block.project_id != project.id:
+            raise serializers.ValidationError({"block": "Blok shu loyihaga tegishli emas."})
+        if self.instance is None and project.photos.count() >= MAX_PHOTOS_PER_PROJECT:
+            raise serializers.ValidationError({"image": f"Bir loyihaga {MAX_PHOTOS_PER_PROJECT} tadan ortiq rasm yuklab bo'lmaydi."})
+        return attrs
+
+    def create(self, validated_data):
+        result = processed(validated_data.pop("image"), max_mb=settings.MAX_PHOTO_SIZE_MB)
+        last = validated_data["project"].photos.order_by("-sort_order").values_list("sort_order", flat=True).first()
+        return ProjectPhoto.objects.create(
+            **validated_data,
+            image=result.image, thumb=result.thumb, width=result.width, height=result.height,
+            sort_order=(last or 0) + 1,
+        )
+
+
+class PhotoReorderSerializer(serializers.Serializer):
+    project = CompanyScopedPrimaryKeyRelatedField(queryset=Project.objects.all())
+    ids = serializers.ListField(child=serializers.IntegerField(min_value=1), min_length=1, max_length=MAX_PHOTOS_PER_PROJECT)
+
+    def validate(self, attrs):
+        ids = attrs["ids"]
+        if len(set(ids)) != len(ids):
+            raise serializers.ValidationError({"ids": "Takrorlangan ID'lar."})
+        existing = set(attrs["project"].photos.values_list("id", flat=True))
+        if set(ids) != existing:
+            raise serializers.ValidationError({"ids": "Ro'yxat loyihadagi barcha rasmlarni aynan bir martadan o'z ichiga olishi kerak."})
+        return attrs
+
+
+class LayoutSerializer(serializers.ModelSerializer):
+    """Planirovka. `image` — multipart fayl; `null` yuborilsa chizma o'chiriladi."""
+
+    project = CompanyScopedPrimaryKeyRelatedField(queryset=Project.objects.all())
+    image = MediaURLField(required=False, allow_null=True)
+    thumb = MediaURLField(read_only=True)
+    unit_type_display = serializers.CharField(source="get_unit_type_display", read_only=True)
+    units_count = serializers.IntegerField(read_only=True)
+    units_available = serializers.IntegerField(read_only=True)
+    min_price = serializers.IntegerField(read_only=True, allow_null=True)
+
+    class Meta:
+        model = Layout
+        fields = [
+            "id", "project", "name", "unit_type", "unit_type_display", "rooms", "area",
+            "image", "thumb", "description", "sort_order",
+            "units_count", "units_available", "min_price", "created_at", "updated_at",
+        ]
+        read_only_fields = ["created_at", "updated_at"]
+
+    def get_fields(self):
+        fields = super().get_fields()
+        if isinstance(self.instance, Layout):
+            fields["project"].read_only = True
+        return fields
+
+    def validate(self, attrs):
+        project = attrs.get("project", getattr(self.instance, "project", None))
+        name = attrs.get("name", getattr(self.instance, "name", None))
+        qs = Layout.objects.filter(project=project, name__iexact=name)
+        if self.instance:
+            qs = qs.exclude(pk=self.instance.pk)
+        if qs.exists():
+            raise serializers.ValidationError({"name": "Bu loyihada shu nomdagi planirovka bor."})
+        if self.instance is None and project.layouts.count() >= MAX_LAYOUTS_PER_PROJECT:
+            raise serializers.ValidationError({"detail": f"Bir loyihada {MAX_LAYOUTS_PER_PROJECT} tadan ortiq planirovka bo'lmaydi."})
+        return attrs
+
+    @staticmethod
+    def _process(upload):
+        # Chizmalar mayda chiziqlardan iborat — sifatni yuqoriroq saqlaymiz
+        return processed(upload, max_side=2400, thumb_side=720, quality=90)
+
+    @transaction.atomic
+    def create(self, validated_data):
+        upload = validated_data.pop("image", None)
+        instance = Layout(**validated_data)
+        if upload is not None:
+            result = self._process(upload)
+            instance.image, instance.thumb = result.image, result.thumb
+        instance.save()
+        return instance
+
+    @transaction.atomic
+    def update(self, instance, validated_data):
+        if "image" in validated_data:
+            old_files = [f.name for f in (instance.image, instance.thumb) if f and f.name]
+            upload = validated_data.pop("image")
+            if upload is None:
+                instance.image, instance.thumb = None, None
+            else:
+                result = self._process(upload)
+                instance.image, instance.thumb = result.image, result.thumb
+            transaction.on_commit(lambda: [default_storage.delete(n) for n in old_files])
+        return super().update(instance, validated_data)

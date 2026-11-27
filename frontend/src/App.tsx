@@ -4,14 +4,20 @@ import { HomeRedirect, RequireAuth } from '@/auth/guards'
 import { AppShell } from '@/components/layout/AppShell'
 import { COMPANY_NAV, PLATFORM_NAV } from '@/components/layout/nav'
 import { ComingSoonPage } from '@/pages/ComingSoonPage'
+import { BookingsPage } from '@/pages/company/BookingsPage'
+import { ChessboardPage } from '@/pages/company/ChessboardPage'
+import { ClientsPage } from '@/pages/company/ClientsPage'
 import { DashboardPage } from '@/pages/company/DashboardPage'
+import { EmployeesPage } from '@/pages/company/EmployeesPage'
+import { ProjectDetailPage } from '@/pages/company/ProjectDetailPage'
+import { ProjectsPage } from '@/pages/company/ProjectsPage'
 import { LoginPage } from '@/pages/LoginPage'
 import { NotFoundPage } from '@/pages/NotFoundPage'
 import { CompaniesPage } from '@/pages/platform/CompaniesPage'
 import { PlatformDashboardPage } from '@/pages/platform/PlatformDashboardPage'
 import { SettingsPage } from '@/pages/SettingsPage'
 
-const COMING = ['chessboard', 'projects', 'clients', 'bookings', 'contracts', 'payments', 'debtors', 'employees', 'reports']
+const COMING = ['contracts', 'payments', 'debtors', 'reports']
 
 export default function App() {
   return (
@@ -23,6 +29,14 @@ export default function App() {
       <Route element={<RequireAuth roles={['director', 'manager', 'cashier']} />}>
         <Route path="/app" element={<AppShell nav={COMPANY_NAV} variant="company" />}>
           <Route index element={<DashboardPage />} />
+          <Route path="chessboard" element={<ChessboardPage />} />
+          <Route path="projects" element={<ProjectsPage />} />
+          <Route path="projects/:id" element={<ProjectDetailPage />} />
+          <Route path="clients" element={<ClientsPage />} />
+          <Route path="bookings" element={<BookingsPage />} />
+          <Route element={<RequireAuth roles={['director']} />}>
+            <Route path="employees" element={<EmployeesPage />} />
+          </Route>
           {COMING.map((p) => (
             <Route key={p} path={p} element={<ComingSoonPage />} />
           ))}

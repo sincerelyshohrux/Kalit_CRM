@@ -35,13 +35,19 @@ uv venv .venv --python 3.13          # yoki: python3 -m venv .venv
 uv pip install --python .venv/bin/python -r requirements.txt
 cp .env.example .env                 # SECRET_KEY va DATABASE_URL ni to'ldiring
 .venv/bin/python manage.py migrate
-.venv/bin/python manage.py seed_demo # demo kompaniya va foydalanuvchilar
+.venv/bin/python manage.py seed_demo # demo kompaniya, foydalanuvchilar, loyihalar va demo rasmlar
 .venv/bin/python manage.py runserver
 ```
 
 - Swagger: http://localhost:8000/api/docs/
 - Django Admin: http://localhost:8000/admin/
 - Demo foydalanuvchilar va paroli: `apps/companies/management/commands/seed_demo.py`
+- Demo rasmlar (real rasmlar kelguncha): `manage.py seed_media` — fasad, hovli, interyer, qurilish
+  jarayoni va planirovka chizmalari kodda chiziladi; `--force` bilan qaytadan yaratiladi
+- Demo mijozlar va bronlar: `manage.py seed_crm` (`seed_demo` o'zi chaqiradi)
+- Muddati o'tgan bronlarni yopish (productionda cron, har 5–10 daqiqada): `manage.py expire_bookings`
+  (so'rovlar ichida ham avtomatik tekshiriladi, cron — qo'shimcha kafolat)
+- Yuklangan fayllar `backend/media/` da (gitga kirmaydi)
 
 Testlar: `.venv/bin/pytest`
 
@@ -57,6 +63,8 @@ npm run dev        # http://localhost:5173
 
 - Kompaniya paneli: direktor/menejer/kassir sifatida kiring → `/app`
 - Platforma admin paneli: superadmin sifatida kiring → `/platform`
+- Xarita: standart OpenStreetMap plitkalari. Prod'da katta trafik uchun o'z provayderingizni
+  `frontend/.env` ga `VITE_MAP_TILES=https://.../{z}/{x}/{y}.png` qilib bering
 
 ## Rollar
 
@@ -64,8 +72,8 @@ npm run dev        # http://localhost:5173
 |---|---|
 | `superadmin` | Platforma admini: kompaniyalarni yaratish, bloklash, tarif/obuna |
 | `director` | O'z kompaniyasi: profil, xodimlar, barcha ma'lumotlar |
-| `manager` | Sotuv: mijozlar, bron, shartnoma (keyingi bosqichlar) |
-| `cashier` | To'lovlarni qabul qilish (keyingi bosqichlar) |
+| `manager` | Sotuv: o'z mijozlari va bronlari (bron muddati — kompaniya sozlamasigacha), shartnoma (8-bosqich) |
+| `cashier` | Mijoz va bronlarni ko'radi; to'lovlarni qabul qilish (8-bosqich) |
 
 Har bir kompaniya faqat o'z ma'lumotlarini ko'radi (`CompanyScopedViewSetMixin`).
 Bloklangan yoki obunasi tugagan kompaniya xodimlari tizimga kira olmaydi.
@@ -90,6 +98,16 @@ Xavfsizlik choralari ro'yxati: [ROADMAP.md](ROADMAP.md#xavfsizlik-har-bosqichda-
 | GET/PATCH | `/api/v1/units/` | xonadonlar; filtrlar: loyiha, blok, xona, qavat, narx, maydon |
 | POST | `/api/v1/units/bulk-price/` | ommaviy narx: `set` / `percent` / `amount` (bron/sotilganlar o'zgarmaydi) |
 | GET | `/api/v1/units/{id}/price-history/` | narx o'zgarishlari tarixi |
+| CRUD | `/api/v1/photos/?project=` | loyiha galereyasi; POST multipart (`project`, `image`, `kind`, `caption`, `block`) |
+| POST | `/api/v1/photos/reorder/` | tartib: `{"project": 1, "ids": [5, 3, 4]}` (birinchisi — muqova) |
+| CRUD | `/api/v1/layouts/?project=` | planirovkalar; `image` multipart (null — chizmani o'chirish) |
+| CRUD | `/api/v1/clients/` | mijozlar; filtr: `status`, `source`, `manager`, `mine`, `unassigned`, `search` (ism yoki telefon bo'lagi) |
+| GET | `/api/v1/clients/stats/` | voronka: holatlar bo'yicha soni |
+| GET/POST | `/api/v1/clients/{id}/activities/` | mijoz tarixi; POST: `{"kind": "note"\|"call"\|"meeting", "text": "..."}` |
+| GET/POST | `/api/v1/bookings/` | bronlar; POST: `{"unit": 1, "client": 2, "days": 3, "note": ""}` |
+| POST | `/api/v1/bookings/{id}/cancel/` | bekor qilish: `{"reason": "..."}` |
+| POST | `/api/v1/bookings/{id}/extend/` | uzaytirish: `{"days": 2}` |
+| GET | `/api/v1/bookings/stats/` | holatlar bo'yicha soni va foydalanuvchiga ruxsat etilgan muddat |
 
 ### Blok yaratish namunasi
 

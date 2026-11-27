@@ -18,3 +18,19 @@ class CompanyScopedPrimaryKeyRelatedField(serializers.PrimaryKeyRelatedField):
         if request is None or not getattr(request.user, "company_id", None):
             return qs.none()
         return qs.filter(**{self.company_field: request.user.company_id})
+
+
+class MediaURLField(serializers.ImageField):
+    """Rasm URL'ini nisbiy ko'rinishda (`/media/...`) qaytaradi.
+
+    Absolyut URL Host sarlavhasidan quriladi — uni soxtalashtirib bo'ladi
+    (host header injection); nisbiy URL esa har doim sayt domeniga ishora qiladi.
+    """
+
+    def to_representation(self, value):
+        if not value:
+            return None
+        try:
+            return value.url
+        except ValueError:
+            return None
