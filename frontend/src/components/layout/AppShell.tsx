@@ -20,6 +20,7 @@ import { Avatar, IconButton } from '@/components/ui'
 import { daysUntil, formatDate, PLAN_LABELS, todayLabel } from '@/lib/format'
 
 import { activeKeyFor, filterNav, type NavSection } from './nav'
+import { NotificationsBell } from './NotificationsBell'
 
 export function KalitMark({ size = 20 }: { size?: number }) {
   return (
@@ -114,7 +115,7 @@ export function AppShell({ nav, variant }: AppShellProps) {
       <div className="drawer-scrim" onClick={() => setDrawer(false)} aria-hidden="true" />
 
       <div className="main">
-        <Topbar onMenu={() => setDrawer(true)} />
+        <Topbar onMenu={() => setDrawer(true)} variant={variant} />
         <main ref={content} className="content glass" id="content">
           <Outlet />
         </main>
@@ -166,7 +167,7 @@ function SubscriptionLine({ until }: { until: string | null }) {
   )
 }
 
-function Topbar({ onMenu }: { onMenu: () => void }) {
+function Topbar({ onMenu, variant }: { onMenu: () => void; variant: 'company' | 'platform' }) {
   const searchRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
@@ -195,7 +196,7 @@ function Topbar({ onMenu }: { onMenu: () => void }) {
           Toshkent · {todayLabel()}
         </span>
         <IconButton icon={CircleHelp} label="Yordam" />
-        <IconButton icon={Bell} label="Bildirishnomalar" dot />
+        {variant === 'company' ? <NotificationsBell /> : <IconButton icon={Bell} label="Bildirishnomalar" />}
         <UserMenu />
       </div>
     </header>

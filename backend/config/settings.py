@@ -22,6 +22,9 @@ env = environ.Env(
     LOGIN_MAX_ATTEMPTS=(int, 5),
     LOGIN_LOCKOUT_MINUTES=(int, 15),
     SECURE_SSL_REDIRECT=(bool, True),
+    PUBLIC_BASE_URL=(str, "http://localhost:5173"),
+    TURNSTILE_SITE_KEY=(str, ""),
+    TURNSTILE_SECRET_KEY=(str, ""),
 )
 environ.Env.read_env(BASE_DIR / ".env")
 
@@ -56,6 +59,7 @@ INSTALLED_APPS = [
     "apps.accounts",
     "apps.realty",
     "apps.crm",
+    "apps.public",
 ]
 
 MIDDLEWARE = [
@@ -149,6 +153,9 @@ REST_FRAMEWORK = {
         "bulk": "30/min",
         "upload": "300/hour",
         "booking": "120/hour",
+        "public": "120/min",
+        "lead_burst": "3/min",
+        "lead": "10/hour",
     },
     "EXCEPTION_HANDLER": "apps.common.exceptions.exception_handler",
     "DEFAULT_RENDERER_CLASSES": ["rest_framework.renderers.JSONRenderer"]
@@ -228,3 +235,13 @@ LOGGING = {
         "django.security": {"handlers": ["console"], "level": "WARNING", "propagate": False},
     },
 }
+
+# ---------------- Ommaviy sayt (6-bosqich) ----------------
+# Havolalar va Open Graph rasmlari uchun asosiy manzil. Host sarlavhasiga ishonilmaydi
+# (uni soxtalashtirib, boshqa domenga ishora qildirish mumkin).
+PUBLIC_BASE_URL = env("PUBLIC_BASE_URL").rstrip("/")
+# Cloudflare Turnstile (bot himoyasi). Kalitlar berilmasa — tekshiruv o'chiq (lokal ishlab chiqish).
+TURNSTILE_SITE_KEY = env("TURNSTILE_SITE_KEY")
+TURNSTILE_SECRET_KEY = env("TURNSTILE_SECRET_KEY")
+# Build qilingan frontend (OG meta qo'yilgan HTML berish uchun)
+FRONTEND_INDEX = BASE_DIR.parent / "frontend" / "dist" / "index.html"

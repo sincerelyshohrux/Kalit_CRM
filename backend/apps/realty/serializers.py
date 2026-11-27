@@ -80,7 +80,7 @@ class ProjectSerializer(StatsMixin, serializers.ModelSerializer):
         fields = [
             "id", "name", "city", "district", "address", "description",
             "housing_class", "housing_class_display", "status", "status_display",
-            "start_date", "completion_date", "cover", "is_active",
+            "start_date", "completion_date", "cover", "is_active", "show_on_site",
             "latitude", "longitude", "nearby",
             "blocks_count", "photos_count", "layouts_count",
             "units_total", "units_available", "units_booked", "units_sold", "min_price",

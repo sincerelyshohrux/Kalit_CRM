@@ -11,11 +11,11 @@ export const TASHKENT: [number, number] = [41.3111, 69.2797]
  * Prod'da yuqori trafik uchun o'z provayderingizni VITE_MAP_TILES orqali bering
  * (OSM foydalanish siyosati katta trafikni taqiqlaydi).
  */
-const TILES = import.meta.env.VITE_MAP_TILES || 'https://tile.openstreetmap.org/{z}/{x}/{y}.png'
-const DARKEN = !import.meta.env.VITE_MAP_TILES
+export const TILES = import.meta.env.VITE_MAP_TILES || 'https://tile.openstreetmap.org/{z}/{x}/{y}.png'
+export const DARKEN = !import.meta.env.VITE_MAP_TILES
 
 // Bundler bilan standart marker rasmlari buziladi — o'zimizning CSS pin ishlatamiz
-const pin = L.divIcon({
+export const pin = L.divIcon({
   className: 'map-pin',
   html: '<span class="map-pin__dot"></span><span class="map-pin__pulse"></span>',
   iconSize: [28, 28],

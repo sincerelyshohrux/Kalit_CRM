@@ -44,10 +44,18 @@ cp .env.example .env                 # SECRET_KEY va DATABASE_URL ni to'ldiring
 - Demo foydalanuvchilar va paroli: `apps/companies/management/commands/seed_demo.py`
 - Demo rasmlar (real rasmlar kelguncha): `manage.py seed_media` — fasad, hovli, interyer, qurilish
   jarayoni va planirovka chizmalari kodda chiziladi; `--force` bilan qaytadan yaratiladi
-- Demo mijozlar va bronlar: `manage.py seed_crm` (`seed_demo` o'zi chaqiradi)
+- Demo mijozlar, bronlar va ommaviy sayt: `manage.py seed_crm` (`seed_demo` o'zi chaqiradi) → http://localhost:5173/toshkent-city
 - Muddati o'tgan bronlarni yopish (productionda cron, har 5–10 daqiqada): `manage.py expire_bookings`
   (so'rovlar ichida ham avtomatik tekshiriladi, cron — qo'shimcha kafolat)
 - Yuklangan fayllar `backend/media/` da (gitga kirmaydi)
+
+Ommaviy sayt uchun `.env` sozlamalari:
+
+- `PUBLIC_BASE_URL=https://kalit.uz` — havolalar va Open Graph shu manzildan quriladi
+- `TURNSTILE_SITE_KEY` / `TURNSTILE_SECRET_KEY` — Cloudflare Turnstile (berilmasa, bot tekshiruvi o'chiq,
+  honeypot va rate limit baribir ishlaydi)
+- Prod'da nginx `/<slug>…` sahifalarini Django'ga (`config.urls` dagi OG view) yuborsin — u
+  `frontend/dist/index.html` ga sarlavha va OG teglarini qo'yib beradi; `/assets`, `/api`, `/media` — odatdagidek
 
 Testlar: `.venv/bin/pytest`
 
@@ -63,6 +71,8 @@ npm run dev        # http://localhost:5173
 
 - Kompaniya paneli: direktor/menejer/kassir sifatida kiring → `/app`
 - Platforma admin paneli: superadmin sifatida kiring → `/platform`
+- Ommaviy sayt: `/<slug>`, `/<slug>/loyiha/<id>`, `/<slug>/xonadon/<id>` (login kerak emas);
+  direktor `/app/site` da yoqadi va sozlaydi
 - Xarita: standart OpenStreetMap plitkalari. Prod'da katta trafik uchun o'z provayderingizni
   `frontend/.env` ga `VITE_MAP_TILES=https://.../{z}/{x}/{y}.png` qilib bering
 
@@ -108,6 +118,13 @@ Xavfsizlik choralari ro'yxati: [ROADMAP.md](ROADMAP.md#xavfsizlik-har-bosqichda-
 | POST | `/api/v1/bookings/{id}/cancel/` | bekor qilish: `{"reason": "..."}` |
 | POST | `/api/v1/bookings/{id}/extend/` | uzaytirish: `{"days": 2}` |
 | GET | `/api/v1/bookings/stats/` | holatlar bo'yicha soni va foydalanuvchiga ruxsat etilgan muddat |
+| GET/PATCH | `/api/v1/site-settings/` | ommaviy sayt sozlamalari (o'zgartirish — direktor) |
+| GET | `/api/v1/notifications/` | o'z bildirishnomalari: `{unread, results}`; `POST {id}/read/`, `POST read-all/` |
+| GET | `/api/v1/public/sites/{slug}/` | **ochiq:** kompaniya va saytdagi loyihalar |
+| GET | `/api/v1/public/sites/{slug}/projects/{id}/` | **ochiq:** loyiha, rasmlar, planirovkalar |
+| GET | `/api/v1/public/sites/{slug}/projects/{id}/chessboard/` | **ochiq:** shaxmatka; filtr: `block`, `rooms`, `area_min/max`, `price_min/max` (narx ochiq bo'lsa), `free=1` |
+| GET | `/api/v1/public/sites/{slug}/units/{id}/` | **ochiq:** xonadon |
+| POST | `/api/v1/public/sites/{slug}/leads/` | **ochiq:** ariza `{"first_name", "last_name", "phone", "unit"?, "project"?, "message"?, "token"?}` |
 
 ### Blok yaratish namunasi
 

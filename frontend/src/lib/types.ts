@@ -81,6 +81,7 @@ export interface Project {
   completion_date: string | null
   cover: string | null
   is_active: boolean
+  show_on_site: boolean
   latitude: number | null
   longitude: number | null
   nearby: NearbyPlace[]

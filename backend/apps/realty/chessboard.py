@@ -95,7 +95,7 @@ def _bookings(blocks, user) -> dict[int, dict]:
     return result
 
 
-def build_chessboard(project: Project, params, user=None) -> dict:
+def build_chessboard(project: Project, params, user=None, *, include_bookings: bool = True) -> dict:
     filters = parse_filters(params)
     block_id = _int_list(params.get("block"))
 
@@ -105,7 +105,7 @@ def build_chessboard(project: Project, params, user=None) -> dict:
 
     units = Unit.objects.filter(block__in=blocks).values(*UNIT_FIELDS).order_by("entrance", "-floor", "position")
 
-    bookings = _bookings(blocks, user)
+    bookings = _bookings(blocks, user) if include_bookings else {}
 
     # block -> entrance -> floor -> [units]
     grid: dict = defaultdict(lambda: defaultdict(lambda: defaultdict(list)))

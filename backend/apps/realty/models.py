@@ -64,6 +64,7 @@ class Project(CompanyScopedModel):
     )
     nearby = models.JSONField("atrofdagi joylar", default=list, blank=True, help_text="[{kind, name, distance_m}]")
     is_active = models.BooleanField("sotuvda", default=True)
+    show_on_site = models.BooleanField("saytda ko'rsatish", default=True)
 
     class Meta:
         verbose_name = "loyiha"

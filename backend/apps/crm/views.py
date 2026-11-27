@@ -2,6 +2,7 @@ import re
 
 from django.db import transaction
 from django.db.models import Count, Q
+from django.utils import timezone
 from drf_spectacular.utils import OpenApiParameter, extend_schema
 from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
@@ -11,9 +12,10 @@ from rest_framework.throttling import ScopedRateThrottle
 
 from apps.accounts.models import Role
 from apps.common.mixins import CompanyScopedViewSetMixin
+from apps.common.permissions import IsCompanyMember
 
 from . import services
-from .models import Booking, Client, ClientActivity
+from .models import Booking, Client, ClientActivity, Notification
 from .serializers import (
     ActivitySerializer,
     BookingCancelSerializer,
@@ -243,3 +245,36 @@ class BookingViewSet(
             "max_days": services.max_days_for(request.user),
             "company_days": request.user.company.booking_days,
         })
+
+
+class NotificationViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+    """Joriy xodimning bildirishnomalari (faqat o'ziniki)."""
+
+    permission_classes = [IsCompanyMember]
+    serializer_class = None
+    filter_backends = []
+
+    def get_queryset(self):
+        return Notification.objects.filter(user=self.request.user, company=self.request.user.company).select_related("client")
+
+    def list(self, request, *args, **kwargs):
+        qs = self.get_queryset()
+        unread = qs.filter(read_at__isnull=True).count()
+        items = [
+            {
+                "id": n.id, "kind": n.kind, "title": n.title, "text": n.text, "client": n.client_id,
+                "read": n.read_at is not None, "created_at": n.created_at,
+            }
+            for n in qs[:30]
+        ]
+        return Response({"unread": unread, "results": items})
+
+    @action(detail=True, methods=["post"])
+    def read(self, request, pk=None):
+        self.get_queryset().filter(pk=pk, read_at__isnull=True).update(read_at=timezone.now())
+        return Response({"ok": True})
+
+    @action(detail=False, methods=["post"], url_path="read-all")
+    def read_all(self, request):
+        self.get_queryset().filter(read_at__isnull=True).update(read_at=timezone.now())
+        return Response({"ok": True})

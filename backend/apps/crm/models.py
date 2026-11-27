@@ -97,6 +97,7 @@ class ClientActivity(CompanyScopedModel):
         BOOKING_EXTENDED = "booking_extended", "Bron uzaytirildi"
         BOOKING_CANCELLED = "booking_cancelled", "Bron bekor qilindi"
         BOOKING_EXPIRED = "booking_expired", "Bron muddati tugadi"
+        WEBSITE = "website", "Saytdan ariza"
 
     # Foydalanuvchi qo'lda qo'sha oladigan turlar
     MANUAL_KINDS = {Kind.NOTE, Kind.CALL, Kind.MEETING}
@@ -161,3 +162,29 @@ class Booking(CompanyScopedModel):
 
     def __str__(self) -> str:
         return f"Bron #{self.pk} — {self.unit}"
+
+
+class Notification(CompanyScopedModel):
+    """Xodimga ichki bildirishnoma (saytdan ariza va h.k.)."""
+
+    class Kind(models.TextChoices):
+        LEAD = "lead", "Yangi ariza"
+        LEAD_REPEAT = "lead_repeat", "Takroriy ariza"
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, verbose_name="xodim", on_delete=models.CASCADE, related_name="notifications"
+    )
+    kind = models.CharField("turi", max_length=30, choices=Kind.choices)
+    title = models.CharField("sarlavha", max_length=200)
+    text = models.CharField("matn", max_length=500, blank=True)
+    client = models.ForeignKey(Client, verbose_name="mijoz", on_delete=models.CASCADE, null=True, blank=True, related_name="+")
+    read_at = models.DateTimeField("o'qilgan", null=True, blank=True)
+
+    class Meta:
+        verbose_name = "bildirishnoma"
+        verbose_name_plural = "bildirishnomalar"
+        ordering = ["-created_at", "-id"]
+        indexes = [models.Index(fields=["user", "read_at"])]
+
+    def __str__(self) -> str:
+        return self.title

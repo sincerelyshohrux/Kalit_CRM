@@ -11,10 +11,12 @@ import { DashboardPage } from '@/pages/company/DashboardPage'
 import { EmployeesPage } from '@/pages/company/EmployeesPage'
 import { ProjectDetailPage } from '@/pages/company/ProjectDetailPage'
 import { ProjectsPage } from '@/pages/company/ProjectsPage'
+import { SiteSettingsPage } from '@/pages/company/SiteSettingsPage'
 import { LoginPage } from '@/pages/LoginPage'
 import { NotFoundPage } from '@/pages/NotFoundPage'
 import { CompaniesPage } from '@/pages/platform/CompaniesPage'
 import { PlatformDashboardPage } from '@/pages/platform/PlatformDashboardPage'
+import { PublicProjectPage, PublicUnitPage, SiteHomePage } from '@/pages/public/PublicPages'
 import { SettingsPage } from '@/pages/SettingsPage'
 
 const COMING = ['contracts', 'payments', 'debtors', 'reports']
@@ -34,6 +36,7 @@ export default function App() {
           <Route path="projects/:id" element={<ProjectDetailPage />} />
           <Route path="clients" element={<ClientsPage />} />
           <Route path="bookings" element={<BookingsPage />} />
+          <Route path="site" element={<SiteSettingsPage />} />
           <Route element={<RequireAuth roles={['director']} />}>
             <Route path="employees" element={<EmployeesPage />} />
           </Route>
@@ -54,6 +57,11 @@ export default function App() {
           <Route path="*" element={<NotFoundPage />} />
         </Route>
       </Route>
+
+      {/* Ommaviy sayt (login talab qilinmaydi). Statik yo'llar (/login, /app, /platform) ustun turadi. */}
+      <Route path="/:slug" element={<SiteHomePage />} />
+      <Route path="/:slug/loyiha/:id" element={<PublicProjectPage />} />
+      <Route path="/:slug/xonadon/:id" element={<PublicUnitPage />} />
 
       <Route path="*" element={<HomeRedirect />} />
     </Routes>

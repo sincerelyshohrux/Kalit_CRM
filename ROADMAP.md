@@ -78,15 +78,15 @@
 
 **Natija:** mijozni bazaga kiritib, unga kvartira bron qilish mumkin.
 
-## 6-bosqich — Ommaviy sayt (login talab qilinmaydi)
+## 6-bosqich — Ommaviy sayt (login talab qilinmaydi) ✅
 Har bir kompaniya uchun mijozlar ko'radigan ochiq sahifa: `kalit.uz/<kompaniya>` (keyin o'z domeni).
-- [ ] Loyihalar ro'yxati: rasmlar, lokatsiya xaritada, topshirish sanasi
-- [ ] Ommaviy shaxmatka: bo'sh xonadonlar, narxlar, planirovkalar, filtrlar (xona, narx, qavat)
-- [ ] Xonadon sahifasi: rasmlar, maydon, narx, rassrochka kalkulyatori
-- [ ] **Ariza formasi:** ism, familiya, telefon (+ qaysi xonadon) → CRM'ga yangi lid bo'lib tushadi, menejerlarga bildirishnoma
-- [ ] Direktor sozlaydi: sayt yoqilgan/o'chirilgan, narxlar ko'rinsinmi, qaysi loyihalar chiqsin
-- [ ] SEO: sarlavhalar, Open Graph (Telegram/Instagram'da chiroyli ko'rinishi)
-- [ ] **Xavfsizlik:** faqat ochiq maydonlar chiqadi (mijoz ismlari, shartnomalar, ichki izohlar hech qachon), ariza uchun rate limit + honeypot + Cloudflare Turnstile (bot himoyasi), telefon validatsiyasi, takroriy arizalarni birlashtirish
+- [x] Loyihalar ro'yxati: rasmlar, lokatsiya xaritada, topshirish sanasi
+- [x] Ommaviy shaxmatka: bo'sh xonadonlar, narxlar, planirovkalar, filtrlar (blok, xona, narx, faqat bo'sh)
+- [x] Xonadon sahifasi: planirovka, maydon, qavat, narx, rassrochka kalkulyatori
+- [x] **Ariza formasi:** ism, familiya, telefon (+ qaysi xonadon) → CRM'ga yangi lid bo'lib tushadi, menejerlarga bildirishnoma (panelda qo'ng'iroqcha)
+- [x] Direktor sozlaydi: sayt yoqilgan/o'chirilgan, manzil (slug), narxlar ko'rinsinmi, qaysi loyihalar chiqsin, kalkulyator shartlari
+- [x] SEO: sarlavhalar, Open Graph (Telegram/Instagram'da chiroyli ko'rinishi)
+- [x] **Xavfsizlik:** faqat ochiq maydonlar chiqadi (mijoz ismlari, shartnomalar, ichki izohlar hech qachon), ariza uchun rate limit + honeypot + Cloudflare Turnstile (bot himoyasi), telefon validatsiyasi, takroriy arizalarni birlashtirish
 
 **Natija:** begona odam login qilmasdan barcha bo'sh xonadon va narxlarni ko'radi va ariza qoldiradi; ariza menejerga boradi.
 
@@ -163,6 +163,11 @@ Stadiondagi "o'rindiqdan ko'rinish" g'oyasi, faqat xonadon uchun: mijoz xonadonn
 - **(5-bosqich)** Bekor qilish/uzaytirish — faqat bronni qilgan menejer yoki direktor; kassir faqat ko'radi; mas'ul menejerni faqat direktor o'zgartiradi
 - **(5-bosqich)** Bron va sotilgan holatlar faqat bron moduli orqali o'zgaradi (qo'lda emas), bron qilingan xonadon narxi qotadi; bron tarixi bor mijozni o'chirib bo'lmaydi
 - **(5-bosqich)** Bron yaratish uchun rate limit (120/soat), mijozlar ro'yxatini ommaviy eksport qilish yo'q, qidiruv uzunligi cheklangan; telefonlar bitta formatga keltiriladi
+- **(6-bosqich)** Ommaviy API faqat oq ro'yxatdagi maydonlarni qaytaradi: bron, sotilgan va "sotuvda emas" xonadonlar bir xil "band" ko'rinadi, mijoz/menejer/izoh hech qachon chiqmaydi; o'chirilgan sayt yoki bloklangan kompaniya — oddiy 404
+- **(6-bosqich)** Narxlar yopiq bo'lsa, narx filtri ham e'tiborsiz qoldiriladi (filtr orqali narxni "topib olish" mumkin emas)
+- **(6-bosqich)** Ariza: 3/daq va 10/soat rate limit, honeypot maydoni, Cloudflare Turnstile (kalit berilsa), ism faqat harflar, xabarda havola taqiqlangan; mavjud mijoz telefoni bo'yicha birlashtiriladi, uning ismi almashtirilmaydi, 30 daqiqa ichidagi takror ariza qayta yozilmaydi
+- **(6-bosqich)** OG havolalar Host sarlavhasidan emas, `PUBLIC_BASE_URL` dan quriladi; sarlavha va tavsif HTML-escape qilinadi; band slug'lar (`app`, `api`, `admin`, …) taqiqlangan
+- **(6-bosqich)** Bildirishnomalarni har bir xodim faqat o'ziniki ko'radi va o'qilgan qiladi; sayt sozlamalarini faqat direktor o'zgartiradi
 
 ### Reliz
 To'liq mahsulot chiqariladi: 1–11-bosqichlarning hammasi tayyor bo'lgach ishga tushiriladi.

@@ -20,6 +20,7 @@ from django.utils import timezone
 from apps.accounts.models import Role, User
 from apps.companies.models import Company
 from apps.crm.models import Booking, Client, ClientActivity
+from apps.public.models import SiteSettings
 from apps.realty.models import Project, Unit
 
 FIRST = ["Aziz", "Bekzod", "Dilshod", "Jamshid", "Sherzod", "Otabek", "Sardor", "Ulug'bek", "Rustam", "Farrux",
@@ -107,4 +108,17 @@ class Command(BaseCommand):
                 )
                 booked += 1
 
-        self.stdout.write(self.style.SUCCESS(f"Mijozlar: +{created + booked}, bronlar: +{booked}"))
+        site, _ = SiteSettings.objects.get_or_create(
+            company=company,
+            defaults={
+                "slug": "toshkent-city",
+                "is_enabled": True,
+                "headline": "Toshkentning qoq markazida zamonaviy uylar",
+                "about": "15 yildan beri Toshkentda turar-joy majmualari quramiz. Bo'lib to'lash, kalit topshirishgacha kafolat.",
+                "phone": company.phone,
+                "telegram": "toshkentcity_uy",
+                "installment_min_down": 30,
+                "installment_max_months": 24,
+            },
+        )
+        self.stdout.write(self.style.SUCCESS(f"Mijozlar: +{created + booked}, bronlar: +{booked}, sayt: /{site.slug}"))

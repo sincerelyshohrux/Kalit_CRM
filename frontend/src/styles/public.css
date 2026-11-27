@@ -1,0 +1,170 @@
+/* ============ Ommaviy sayt ============ */
+
+.pub { min-height: 100vh; display: flex; flex-direction: column; }
+.pub--empty { align-items: center; justify-content: center; padding: 24px; }
+.pub-missing { max-width: 420px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 32px; }
+.pub-missing h1 { font-family: var(--font-display); font-size: 22px; margin: 6px 0 0; }
+
+.pub-head {
+  position: sticky; top: 0; z-index: 50;
+  display: flex; justify-content: space-between; align-items: center; gap: 12px;
+  padding: 12px clamp(14px, 4vw, 40px);
+  background: rgba(14, 15, 17, 0.72);
+  backdrop-filter: blur(18px) saturate(1.2);
+  -webkit-backdrop-filter: blur(18px) saturate(1.2);
+  border-bottom: 1px solid var(--stroke);
+}
+.pub-brand { display: flex; align-items: center; gap: 10px; color: var(--text); text-decoration: none; min-width: 0; }
+.pub-brand b { display: block; font-family: var(--font-display); font-size: 16px; letter-spacing: -0.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pub-brand small { display: block; font-size: 12px; }
+.pub-brand__logo, .pub-brand__mark { width: 36px; height: 36px; border-radius: 11px; object-fit: cover; flex: none; }
+.pub-brand__mark { display: grid; place-items: center; background: var(--pill); color: var(--pill-text); font-weight: 700; font-family: var(--font-display); }
+.pub-head__actions { display: flex; align-items: center; gap: 8px; }
+.pub-phone { display: inline-flex; align-items: center; gap: 6px; color: var(--text); text-decoration: none; font-size: 14px; padding: 0 10px; font-variant-numeric: tabular-nums; }
+.pub-phone:hover { color: var(--pill); }
+
+.pub-main { width: 100%; max-width: 1180px; margin: 0 auto; padding: 22px clamp(14px, 4vw, 40px) 48px; flex: 1; }
+.pub-main section { margin-top: 26px; }
+.pub-main section:first-child { margin-top: 0; }
+
+.pub-foot { display: flex; flex-wrap: wrap; gap: 8px 18px; justify-content: center; align-items: center; padding: 20px; font-size: 12.5px; border-top: 1px solid var(--stroke); }
+.pub-foot a { color: inherit; }
+.pub-foot__kalit { display: inline-flex; align-items: center; gap: 5px; opacity: 0.7; }
+
+.eyebrow { display: inline-block; font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-3); margin-bottom: 8px; }
+.pub-section-title { font-family: var(--font-display); font-size: 22px; letter-spacing: -0.02em; margin: 30px 0 14px; }
+.pub-main section > .pub-section-title:first-child { margin-top: 0; }
+.pub-back { display: inline-flex; align-items: center; gap: 6px; font-size: 13.5px; text-decoration: none; margin-bottom: 14px; }
+.pub-back:hover { color: var(--text); }
+
+/* Hero */
+.pub-hero { padding: clamp(24px, 5vw, 56px); overflow: hidden; background: radial-gradient(120% 140% at 100% 0%, rgba(255, 255, 255, 0.09), transparent 55%), var(--glass-1); }
+.pub-hero__text { max-width: 720px; }
+.pub-hero h1 { font-family: var(--font-display); font-size: clamp(28px, 4.4vw, 48px); line-height: 1.06; letter-spacing: -0.03em; margin: 0 0 14px; }
+.pub-hero p { font-size: 15.5px; line-height: 1.6; margin: 0; white-space: pre-line; }
+.pub-hero__cta { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; margin-top: 24px; }
+
+/* Loyiha kartalari */
+.pub-projects { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
+.pub-card { padding: 0; overflow: hidden; color: var(--text); text-decoration: none; display: flex; flex-direction: column; transition: border-color var(--t-fast), transform var(--t-fast) var(--ease-out); }
+.pub-card:hover { border-color: var(--stroke-2); transform: translateY(-2px); }
+.pub-card__cover { position: relative; aspect-ratio: 16 / 10; background: var(--glass-2); display: grid; place-items: center; color: var(--text-3); }
+.pub-card__cover img { width: 100%; height: 100%; object-fit: cover; }
+.pub-card__badge { position: absolute; left: 10px; top: 10px; padding: 4px 9px; border-radius: 99px; font-size: 11.5px; background: rgba(10, 11, 13, 0.7); backdrop-filter: blur(8px); }
+.pub-card__body { padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 6px; }
+.pub-card__body h3 { font-family: var(--font-display); font-size: 18px; margin: 0; letter-spacing: -0.01em; }
+.pub-card__addr { display: flex; align-items: center; gap: 5px; font-size: 13px; }
+.pub-card__meta { display: flex; justify-content: space-between; gap: 8px; font-size: 13px; }
+.pub-card__price { font-weight: 600; font-variant-numeric: tabular-nums; }
+
+/* Loyiha sahifasi */
+.pub-project-hero { display: grid; grid-template-columns: 1.3fr 1fr; gap: 22px; padding: 14px; }
+.pub-project-hero__media { border-radius: var(--r-md); overflow: hidden; aspect-ratio: 16 / 10; background: var(--glass-2); }
+.pub-cover-btn { position: relative; width: 100%; height: 100%; padding: 0; border: 0; background: none; cursor: zoom-in; display: block; }
+.pub-cover-btn img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.pub-cover-btn__count { position: absolute; right: 10px; bottom: 10px; display: inline-flex; align-items: center; gap: 5px; padding: 5px 10px; border-radius: 99px; font-size: 12px; color: var(--text); background: rgba(10, 11, 13, 0.7); backdrop-filter: blur(8px); }
+.pub-cover-empty { width: 100%; height: 100%; display: grid; place-items: center; color: var(--text-3); }
+.pub-project-hero__info { padding: 10px 8px; display: flex; flex-direction: column; gap: 10px; align-items: flex-start; }
+.pub-project-hero__info h1, .pub-unit h1 { font-family: var(--font-display); font-size: clamp(24px, 3.4vw, 36px); letter-spacing: -0.025em; margin: 0; line-height: 1.1; }
+
+.pub-facts { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; margin: 8px 0; width: 100%; }
+.pub-facts div { padding: 10px 12px; border-radius: var(--r-sm); background: var(--glass-1); border: 1px solid var(--stroke); }
+.pub-facts dt { font-size: 12px; color: var(--text-3); }
+.pub-facts dd { margin: 2px 0 0; font-weight: 600; font-variant-numeric: tabular-nums; }
+
+.pub-gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 8px; margin-top: 12px; }
+.pub-gallery__item { padding: 0; border: 1px solid var(--stroke); border-radius: var(--r-sm); overflow: hidden; aspect-ratio: 4 / 3; background: var(--glass-2); cursor: zoom-in; }
+.pub-gallery__item img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform var(--t-med) var(--ease-out); }
+.pub-gallery__item:hover img { transform: scale(1.05); }
+
+.pub-text p { margin: 0; line-height: 1.65; white-space: pre-line; color: var(--text-2); }
+
+.pub-layouts { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 12px; }
+.pub-layout { display: flex; flex-direction: column; gap: 4px; padding: 12px; font-size: 13.5px; }
+.pub-layout__img { aspect-ratio: 1; border-radius: var(--r-sm); background: rgba(255, 255, 255, 0.03); display: grid; place-items: center; overflow: hidden; margin-bottom: 6px; }
+.pub-layout__img img { width: 100%; height: 100%; object-fit: contain; }
+
+.legend-dot--busy { background: rgba(255, 255, 255, 0.14); }
+.cell:disabled { cursor: default; }
+.cell:disabled:hover { transform: none; box-shadow: none; }
+
+.pub-location__grid { display: grid; grid-template-columns: 1.5fr 1fr; gap: 14px; align-items: start; }
+.pub-location__grid > :only-child { grid-column: 1 / -1; }
+.pub-nearby { list-style: none; margin: 0; padding: 6px 16px; }
+.pub-nearby li { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--stroke); font-size: 13.5px; }
+.pub-nearby li:last-child { border-bottom: 0; }
+.pub-nearby li > span:first-child { display: flex; flex-direction: column; }
+.pub-nearby small { font-size: 12px; }
+.map-tip { background: rgba(18, 20, 23, 0.95); color: var(--text); border: 1px solid var(--stroke); border-radius: 8px; box-shadow: none; font-family: var(--font-ui); }
+.map-tip::before { display: none; }
+
+/* Xonadon sahifasi */
+.pub-unit { display: grid; grid-template-columns: 1fr 380px; gap: 16px; align-items: start; }
+.pub-unit__main { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
+.pub-unit__plan { aspect-ratio: 1; border-radius: var(--r-md); background: rgba(255, 255, 255, 0.03); display: grid; place-items: center; overflow: hidden; }
+.pub-unit__plan img { width: 100%; height: 100%; object-fit: contain; }
+.pub-unit__side { display: flex; flex-direction: column; gap: 14px; position: sticky; top: 84px; }
+.pub-price__total { font-family: var(--font-display); font-size: 28px; font-weight: 600; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.pub-side-title { display: flex; align-items: center; gap: 8px; font-size: 16px; margin: 0 0 12px; }
+
+.calc { display: flex; flex-direction: column; gap: 8px; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--stroke); }
+.calc__row { display: flex; justify-content: space-between; font-size: 13.5px; }
+.calc__row b { font-variant-numeric: tabular-nums; }
+.calc input[type="range"] { width: 100%; accent-color: var(--pill); }
+.calc__result { display: flex; justify-content: space-between; align-items: baseline; padding: 12px 14px; margin-top: 4px; border-radius: var(--r-sm); background: var(--pill); color: var(--pill-text); }
+.calc__result strong { font-size: 18px; font-variant-numeric: tabular-nums; }
+.calc__note { font-size: 12px; }
+
+/* Ariza formasi */
+.hp { position: absolute !important; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
+.lead-done { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 8px; padding: 18px 8px; color: var(--ok); }
+.lead-done b { color: var(--text); font-size: 18px; }
+.lead-done p { margin: 0 0 8px; color: var(--text-2); }
+.lead-privacy { font-size: 12px; margin: 8px 0 0; text-align: center; }
+.turnstile { min-height: 65px; }
+
+@media (max-width: 900px) {
+  .pub-project-hero, .pub-unit, .pub-unit__main, .pub-location__grid { grid-template-columns: 1fr; }
+  .pub-unit__side { position: static; }
+}
+@media (max-width: 560px) {
+  .pub-phone span { display: none; }
+  .pub-brand small { display: none; }
+}
+
+/* ============ Kompaniya paneli: sayt sozlamalari ============ */
+.fieldset-reset { border: 0; padding: 0; margin: 0; min-width: 0; }
+.fieldset-reset:disabled { opacity: 0.7; }
+.site-url { display: flex; align-items: center; gap: 12px; padding: 14px 18px; }
+.site-url code { flex: 1; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.switch-row { display: flex; justify-content: space-between; align-items: center; gap: 14px; cursor: pointer; }
+.switch-row > span:first-child { display: flex; flex-direction: column; gap: 2px; font-size: 14px; }
+.switch-row b { font-weight: 500; }
+.switch-row small { font-size: 12px; }
+.switch { position: relative; flex: none; width: 40px; height: 24px; }
+.switch input { position: absolute; inset: 0; opacity: 0; margin: 0; cursor: pointer; }
+.switch__track { position: absolute; inset: 0; border-radius: 99px; background: var(--glass-3); border: 1px solid var(--stroke); transition: background var(--t-fast); pointer-events: none; }
+.switch__track::after { content: ''; position: absolute; top: 3px; left: 3px; width: 16px; height: 16px; border-radius: 50%; background: var(--text-2); transition: transform var(--t-fast) var(--ease-out), background var(--t-fast); }
+.switch input:checked + .switch__track { background: var(--pill); }
+.switch input:checked + .switch__track::after { transform: translateX(16px); background: var(--pill-text); }
+.switch input:focus-visible + .switch__track { outline: 2px solid var(--pill); outline-offset: 2px; }
+.switch input:disabled { cursor: not-allowed; }
+.switch input:disabled + .switch__track { opacity: 0.5; }
+
+/* Bildirishnomalar */
+.notif { width: min(360px, calc(100vw - 24px)); padding: 6px; }
+.notif__head { display: flex; justify-content: space-between; align-items: center; padding: 8px 10px; font-size: 14px; }
+.notif__all { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; color: var(--text-2); background: none; border: 0; cursor: pointer; padding: 4px 6px; border-radius: 6px; }
+.notif__all:hover { color: var(--text); background: var(--glass-2); }
+.notif__empty { padding: 22px 10px; text-align: center; font-size: 13px; }
+.notif__list { list-style: none; margin: 0; padding: 0; max-height: 420px; overflow-y: auto; }
+.notif__item { display: flex; gap: 10px; width: 100%; text-align: left; padding: 10px; border: 0; border-radius: 10px; background: none; color: var(--text-2); cursor: pointer; }
+.notif__item:hover { background: var(--glass-2); }
+.notif__item.is-unread { color: var(--text); }
+.notif__item.is-unread .notif__icon { background: var(--pill); color: var(--pill-text); }
+.notif__icon { flex: none; width: 28px; height: 28px; border-radius: 9px; display: grid; place-items: center; background: var(--glass-2); }
+.notif__body { display: flex; flex-direction: column; gap: 2px; font-size: 13px; min-width: 0; }
+.notif__body b { font-weight: 500; }
+.notif__body span { overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.notif__body small { font-size: 11.5px; }

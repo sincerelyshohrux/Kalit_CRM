@@ -4,6 +4,7 @@ import {
   Building2,
   CalendarClock,
   FileSignature,
+  Globe,
   Grid3x3,
   Home,
   Settings,
@@ -41,6 +42,7 @@ export const COMPANY_NAV: NavSection[] = [
       { key: 'projects', to: '/app/projects', label: 'Loyihalar', icon: Building2 },
       { key: 'clients', to: '/app/clients', label: 'Mijozlar', icon: UserRound },
       { key: 'bookings', to: '/app/bookings', label: 'Bronlar', icon: CalendarClock },
+      { key: 'site', to: '/app/site', label: 'Ommaviy sayt', icon: Globe, roles: ['director', 'manager'] },
     ],
   },
   {
